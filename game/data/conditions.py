@@ -1,0 +1,177 @@
+# -*- coding: utf-8 -*-
+"""Conditions registry: GDD section 5.6 (condition table), section 5.7
+(Staggered/Tripped knockdown ladder mechanics), section 5.5 (Downed rules),
+and section 5.3 (Bloodied threshold)."""
+
+CONDITIONS = {
+    "asleep": {
+        "id": "asleep",
+        "name": "Asleep",
+        "effect": "Cannot act; any damage wakes it; the first hit against a sleeper is an automatic critical.",
+        "flags": {
+            "cannot_act": True,
+            "wakes_on_damage": True,
+            "first_hit_auto_crit": True,
+        },
+        "src": "§5.6 L308",
+    },
+    "paralyzed": {
+        "id": "paralyzed",
+        "name": "Paralyzed",
+        "effect": "Cannot act; attacks against it have advantage; melee hits against it are automatic criticals; repeats its save at the end of its turns.",
+        "flags": {
+            "cannot_act": True,
+            "attacks_have_advantage": True,
+            "melee_hits_auto_crit": True,
+            "repeat_save_at_turn_end": True,
+        },
+        "src": "§5.6 L309",
+    },
+    "charmed": {
+        "id": "charmed",
+        "name": "Charmed",
+        "effect": "Cannot attack or target the charmer.",
+        "flags": {
+            "cannot_attack_charmer": True,
+            "cannot_target_charmer": True,
+        },
+        "src": "§5.6 L310",
+    },
+    "frightened": {
+        "id": "frightened",
+        "name": "Frightened",
+        "effect": "Disadvantage on attacks and checks while the source of its fear is present.",
+        "flags": {
+            "disadvantage_on_attacks": True,
+            "disadvantage_on_checks": True,
+            "requires_fear_source_present": True,
+        },
+        "src": "§5.6 L311",
+    },
+    "pinned": {
+        "id": "pinned",
+        "name": "Pinned",
+        "effect": "Cannot move or change lanes on its next turn.",
+        "flags": {
+            "cannot_move": True,
+            "cannot_change_lanes": True,
+            "duration": "next_turn",
+        },
+        "src": "§5.6 L312",
+    },
+    "staggered": {
+        "id": "staggered",
+        "name": "Staggered",
+        "effect": "Off balance: attacks against it have advantage until the start of the source's next turn.",
+        "flags": {
+            "attacks_have_advantage": True,
+            "duration": "start_of_source_next_turn",
+        },
+        "src": "§5.6 L313",
+    },
+    "tripped": {
+        "id": "tripped",
+        "name": "Tripped",
+        "effect": "On the ground: attacks against it have advantage; it cannot change lanes; its Bonus Actions and Reactions still function; at the start of its turn, its Action is consumed standing up.",
+        "flags": {
+            "requires_condition": "staggered",
+            "apply_save": "str",
+            "attacks_have_advantage": True,
+            "cannot_change_lanes": True,
+            "bonus_and_reactions_work": True,
+            "stand_up_consumes_action": True,
+            "stand_up_in_frontline_provokes": True,
+            "stand_up_in_backline_safe": True,
+            "no_immunity_window": True,
+        },
+        "src": "§5.6 L314, §5.7 L323-336",
+    },
+    "stunned": {
+        "id": "stunned",
+        "name": "Stunned",
+        "effect": "Cannot act; attacks against it have advantage; automatically fails Strength and Dexterity saves.",
+        "flags": {
+            "cannot_act": True,
+            "attacks_have_advantage": True,
+            "auto_fail_saves": ["str", "dex"],
+        },
+        "src": "§5.6 L315",
+    },
+    "poisoned": {
+        "id": "poisoned",
+        "name": "Poisoned",
+        "effect": "Disadvantage on attack rolls and ability checks; repeats its save at the end of its turns.",
+        "flags": {
+            "disadvantage_on_attacks": True,
+            "disadvantage_on_checks": True,
+            "repeat_save_at_turn_end": True,
+        },
+        "src": "§5.6 L316",
+    },
+    "hidden": {
+        "id": "hidden",
+        "name": "Hidden",
+        "effect": "Backline-only state: cannot be single-targeted; lane-wide effects still hit it and reveal it; attacking from Hidden reveals the attacker and grants advantage on that attack.",
+        "flags": {
+            "backline_only": True,
+            "cannot_be_single_targeted": True,
+            "lane_wide_hits": True,
+            "lane_wide_reveals": True,
+            "attacking_reveals": True,
+            "attack_from_hidden_advantage": True,
+        },
+        "src": "§5.6 L317",
+    },
+    "turned": {
+        "id": "turned",
+        "name": "Turned",
+        "effect": "(Undead only.) Cannot act; flees to its Backline and stays there; ends early if it takes any damage.",
+        "flags": {
+            "undead_only": True,
+            "cannot_act": True,
+            "flees_to_backline": True,
+            "stays_in_backline": True,
+            "ends_on_damage": True,
+        },
+        "src": "§5.6 L318",
+    },
+    "downed": {
+        "id": "downed",
+        "name": "Downed",
+        "effect": "Unconscious, untargetable, takes no damage, cannot act, and cannot be finished off. Only True Healing revives a Downed character.",
+        "flags": {
+            "unconscious": True,
+            "untargetable": True,
+            "takes_no_damage": True,
+            "cannot_act": True,
+            "cannot_be_finished_off": True,
+            "revive_requires_true_healing": True,
+            "revived_acts_round_after_revival": True,
+            "post_combat_rise_at_hp": 1,
+            "all_party_downed_game_over": True,
+            "enemies_at_zero_hp_die": True,
+        },
+        "src": "§5.6 L319, §5.5 L295-301",
+    },
+    "bloodied": {
+        "id": "bloodied",
+        "name": "Bloodied",
+        "effect": "At or below half HP (a flag, not a penalty).",
+        "flags": {
+            "at_or_below_half_max_hp": True,
+            "flag_only": True,
+        },
+        "src": "§5.6 L320, §5.3 L249-250",
+    },
+    "concentrating": {
+        "id": "concentrating",
+        "name": "Concentrating",
+        "effect": "Maintaining one concentration effect. Taking damage forces a Constitution save: DC 10 or half the damage taken, whichever is higher; failure ends the effect.",
+        "flags": {
+            "max_concentration_effects": 1,
+            "save_on_damage": {"ability": "con", "dc": "max(10, half_damage)"},
+            "failed_save_ends_effect": True,
+        },
+        "src": "§5.6 L321",
+    },
+}

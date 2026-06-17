@@ -1,0 +1,17 @@
+{
+  "mcpServers": {
+    "renpy-mcp": {
+      "type": "stdio",
+      "command": "/home/fivepunto/.local/bin/uv",
+      "args": [
+        "run",
+        "--directory",
+        "/home/fivepunto/tools/renpy-mcp/renpy-mcp",
+        "renpy-mcp"
+      ],
+      "env": {
+        "RENPY_SDK_PATH": "/home/fivepunto/renpy/renpy-8.5.3-sdk"
+      }
+    }
+  }
+}
