@@ -561,18 +561,45 @@ def hooks_for(registry, combat, event):
 # ---------------------------------------------------------------------------
 # player abilities (the Abilities button) -- slice-level coverage
 
+FEATURE_USE_POOLS = {
+    "fighter_second_wind": "second_wind",
+    "fighter_action_surge": "action_surge",
+    "barbarian_rage": "rage",
+    "bard_bardic_inspiration": "bardic",
+}
+
+
+def _feature_use_pool(registry, char, fid):
+    key = FEATURE_USE_POOLS.get(fid)
+    if key and key in ch.resource_row(registry, char):
+        return key
+    return None
+
+
 def _uses_left(registry, char, fid):
     feat = registry["features"][fid]
-    if not feat.get("uses"):
+    uses_data = feat.get("uses")
+    if not uses_data:
         return None
+    pool_key = _feature_use_pool(registry, char, fid)
+    if pool_key:
+        return char["resources"].get(
+            pool_key, ch.resource_row(registry, char)[pool_key]["max"])
     uses = char["resources"].setdefault("uses", {})
     if fid not in uses:
-        uses[fid] = ch.resolve_amount(char, feat["uses"]["amount"])
+        uses[fid] = ch.resolve_amount(char, uses_data["amount"])
     return uses[fid]
 
 
-def _spend_use(char, fid):
-    char["resources"]["uses"][fid] -= 1
+def _spend_use(registry, char, fid):
+    pool_key = _feature_use_pool(registry, char, fid)
+    if pool_key:
+        if pool_key not in char["resources"]:
+            char["resources"][pool_key] = ch.resource_row(
+                registry, char)[pool_key]["max"]
+        char["resources"][pool_key] -= 1
+    else:
+        char["resources"]["uses"][fid] -= 1
 
 
 def _ability_options(registry, combat, actor, impl):
@@ -656,7 +683,7 @@ def use_ability(registry, combat, actor, aid, target=None, option=None):
         return result
     # committed and resolved: spend the use and the Action / Bonus Action
     if use_based and _uses_left(registry, char, fid) is not None:
-        _spend_use(char, fid)
+        _spend_use(registry, char, fid)
     if action_kind == "action":
         actor["acted"]["action"] = True
     elif action_kind == "bonus":
