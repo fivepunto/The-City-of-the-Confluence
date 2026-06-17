@@ -381,9 +381,12 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
                         combat["round"], combat["turn"]))
         if breach_actor["side"] == "enemy" or not bcombat.can_act(breach_actor):
             # enemy turns and condition-blocked turns resolve in the
-            # engine; the short pause lets the player read the floats
-            $ breach_combat_trace("  ENEMY/BLOCKED show screen -> %s" % breach_actor["name"])
-            show screen combat_screen(combat)
+            # engine; the short pause lets the player read the floats.
+            # Resolve first, then render a wait-state snapshot for the actor
+            # that just acted. Otherwise the shown screen reads combat["turn"]
+            # after advance_turn() and can display the next actor as "acts..."
+            # or briefly expose player controls during an autoplay pause.
+            $ breach_combat_trace("  ENEMY/BLOCKED resolve -> %s" % breach_actor["name"])
             python:
                 if breach_actor["side"] == "enemy":
                     bcombat.enemy_take_turn(REG, combat, breach_actor)
@@ -391,8 +394,9 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
                     bcombat.end_turn(REG, combat)
                 renpy.block_rollback()
                 breach_drain_floats(combat)
-            $ renpy.pause(0.4)
-            hide screen combat_screen
+            $ breach_combat_trace("  ENEMY/BLOCKED after resolve turn=%s round=%s over=%r" % (combat["turn"], combat["round"], combat["over"]))
+            $ renpy.call_screen("combat_screen", combat=combat, wait_actor=breach_actor, wait_timeout=0.4)
+            $ breach_combat_trace("  ENEMY/BLOCKED wait returned")
         else:
             $ breach_combat_trace("  PLAYER call_screen for %s (acted.action=%s)" % (breach_actor["name"], breach_actor["acted"].get("action")))
             $ breach_intent = renpy.call_screen("combat_screen", combat=combat)
@@ -436,9 +440,12 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
 # ---------------------------------------------------------------------------
 # the combat screen proper (GDD 15.6)
 
-screen combat_screen(combat):
+screen combat_screen(combat, wait_actor=None, wait_timeout=None):
     modal True
     add Solid(gui.bg_color)
+
+    if wait_timeout is not None:
+        timer wait_timeout action Return(None)
 
     default mode = "main"
     default pending = None
@@ -446,10 +453,11 @@ screen combat_screen(combat):
     default reckless = False
     default overlay = None
 
-    $ actor = bcombat.current(combat)
+    $ actor = wait_actor or bcombat.current(combat)
+    $ p_waiting = wait_actor is not None
     $ p_pc = (actor["kind"] == "pc")
     $ achar = actor["char"] if p_pc else None
-    $ p_playable = p_pc and bcombat.can_act(actor) and combat["over"] is None
+    $ p_playable = (not p_waiting) and p_pc and bcombat.can_act(actor) and combat["over"] is None
     $ abilities = bhooks.available_abilities(REG, combat, actor) if p_playable else []
     $ bonus_abilities = [a for a in abilities if a["action"] == "bonus" and a["usable"]]
     $ spells = bhooks.castable_spells(REG, combat, actor) if p_playable else []
