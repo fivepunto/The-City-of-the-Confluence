@@ -99,7 +99,7 @@ def validate_equip(registry, char, slot, item_id):
     if slot in MAGIC_ONLY_SLOTS:
         # #10.2 L1188-1190: these five slots are magic items only, and no
         # magic items are authored yet
-        return fail("Only magic items fit this slot.")
+        return fail("This slot accepts magic equipment, but no item is available yet.")
 
     if slot == "armor":
         if kind != "armor" or item_id == "shield":

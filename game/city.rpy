@@ -148,8 +148,8 @@ screen free_mode_menu():
                 textbutton "Quests" style "breach_frame_button" xfill True action Return("quests")
                 textbutton "Inventory & Equipment" style "breach_frame_button" xfill True action Return("inventory")
                 textbutton "Character Sheet" style "breach_frame_button" xfill True action Return("sheet")
-                textbutton "Camp Outfitter (supplies & upgrades)" style "breach_frame_button" xfill True action Return("outfitter")
-                textbutton "Save / Load" style "breach_frame_button" xfill True action ShowMenu("save")
+                textbutton "Camp Outfitter: Supplies & Upgrades" style "breach_frame_button" xfill True action Return("outfitter")
+                textbutton "Save Game" style "breach_frame_button" xfill True action ShowMenu("save")
                 textbutton "Preferences" style "breach_frame_button" xfill True action ShowMenu("preferences")
                 ## a quiet lamplit ledge separates the session controls below
                 ## from the navigation group above.
@@ -157,7 +157,7 @@ screen free_mode_menu():
                 use breach_lip(gui.breach_accent_dim_color)
                 null height gui.pad_xs
                 textbutton "Resume" style "breach_frame_button" xfill True action Return(None)
-                textbutton "Quit to main menu" style "breach_frame_button" xfill True action Return("leave")
+                textbutton "Return to Main Menu" style "breach_frame_button" xfill True action Return("leave")
 
 
 ## Free Mode (#13.1 L1388-1393): the interface enables and the player owns

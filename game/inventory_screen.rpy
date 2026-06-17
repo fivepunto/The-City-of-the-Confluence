@@ -46,16 +46,42 @@ init python:
         kind = binv.item_kind(REG, item_id)
         if kind == "weapon":
             w = REG["weapons"][item_id]
-            return "%s %s" % (w["dice"], w["damage_type"])
+            mastery = REG["masteries"][w["mastery"]]
+            props = []
+            for prop_id in w["properties"]:
+                prop = REG["weapon_properties"][prop_id]
+                if prop.get("effect"):
+                    props.append("%s: %s" % (prop["name"], prop["effect"]))
+                else:
+                    props.append(prop["name"])
+            parts = ["%s %s damage" % (w["dice"], w["damage_type"])]
+            if props:
+                parts.append("Properties: " + "; ".join(props))
+            parts.append("Mastery - %s: %s" %
+                         (mastery["name"], mastery["effect"]))
+            return ". ".join(parts)
         if kind == "shield":
-            return "AC +%d" % REG["armor"]["shield"]["ac_bonus"]
+            return "Offhand shield. +%d AC while equipped." % REG["armor"]["shield"]["ac_bonus"]
         if kind == "armor":
             a = REG["armor"][item_id]
+            category = next((cat for cat, ids in REG["armor_categories"].items()
+                             if isinstance(ids, list) and item_id in ids), "")
             if a["dex_cap"] is None:
-                return "AC %d + Dexterity" % a["base_ac"]
-            if a["dex_cap"] == 0:
-                return "AC %d" % a["base_ac"]
-            return "AC %d + Dexterity (max %d)" % (a["base_ac"], a["dex_cap"])
+                ac = "AC %d + full Dexterity modifier" % a["base_ac"]
+            elif a["dex_cap"] == 0:
+                ac = "AC %d; Dexterity does not add to AC" % a["base_ac"]
+            else:
+                ac = "AC %d + Dexterity modifier, capped at +%d" % (
+                    a["base_ac"], a["dex_cap"])
+            extras = []
+            if category:
+                extras.append(category.title() + " armor")
+            extras.append(ac)
+            if a.get("str_req"):
+                extras.append("requires Strength %d" % a["str_req"])
+            if a.get("trickery_disadvantage"):
+                extras.append("disadvantage on Trickery checks")
+            return ". ".join(extras)
         if kind == "consumable":
             return breach_player_text(REG, "consumables", item_id,
                                       REG["consumables"][item_id]["effect"])
@@ -64,6 +90,8 @@ init python:
             return breach_player_text(REG, "magic_items", item_id, m["effect"])
         if kind == "relic":
             return breach_player_text(REG, "relics", item_id, "")
+        if kind == "key_item":
+            return breach_player_text(REG, "key_items", item_id, "")
         return ""
 
     def breach_inv_tab_items(tab):
@@ -88,12 +116,12 @@ init python:
         """(slot, button label) pairs an item can try to equip to."""
         kind = binv.item_kind(REG, item_id)
         if kind == "weapon":
-            return [("mainhand", "Equip mainhand"),
-                    ("offhand", "Equip offhand")]
+            return [("mainhand", "Equip to main hand"),
+                    ("offhand", "Equip to off hand")]
         if kind == "shield":
-            return [("offhand", "Equip offhand")]
+            return [("offhand", "Equip to off hand")]
         if kind == "armor":
-            return [("armor", "Equip")]
+            return [("armor", "Equip armor")]
         return []
 
     def breach_equip_item(char_id, slot, item_id):
@@ -124,7 +152,7 @@ init python:
         bstate.remove_item(gs, item_id)
         renpy.block_rollback()   # a consumable was consumed (#16.1)
         store.breach_inv_error = None
-        renpy.notify("Healed %d HP" % result["healed"])
+        renpy.notify("Restored %d HP." % result["healed"])
 
     def breach_discard_item(item_id):
         bstate.remove_item(gs, item_id)
@@ -160,7 +188,7 @@ screen breach_inv_slot(member, slot_id):
                     size gui.size_small
                     color gui.breach_text_color
             elif slot_id in binv.MAGIC_ONLY_SLOTS:
-                text "magic only" size gui.size_small color gui.muted_text_color
+                text "Magic item slot" size gui.size_small color gui.muted_text_color
             else:
                 text "—" size gui.size_small color gui.muted_text_color
 
@@ -248,7 +276,7 @@ screen breach_inv_header(sel_id):
                         yalign 0.5
                         use breach_stat_cell("Gold", gs["gold"],
                             value_color=gui.breach_accent_color)
-                    textbutton "Close":
+                    textbutton "Close Inventory":
                         style "breach_frame_button"
                         yalign 0.5
                         action Return(None)
@@ -431,18 +459,18 @@ screen breach_inv_list(breach_inv_member, tab, sel_item):
                             hbox:
                                 spacing gui.pad_m
                                 if breach_sel_kind == "consumable":
-                                    textbutton "Use":
+                                    textbutton "Use Consumable":
                                         style "breach_frame_button"
                                         action [SetVariable("breach_inv_error", None),
                                                 SetScreenVariable("use_picker", True)]
                                 if breach_sel_kind == "key_item":
                                     # quest items refuse discard (#15.4 L1519)
-                                    text "Quest items cannot be discarded.":
+                                    text "Quest items cannot be discarded or sold.":
                                         size gui.size_small
                                         color gui.muted_text_color
                                         yalign 0.5
                                 else:
-                                    textbutton "Discard":
+                                    textbutton "Discard Item":
                                         style "breach_frame_button"
                                         action Confirm(
                                             "Discard %s?" % breach_lit(breach_item_name(sel_item)),
@@ -479,7 +507,7 @@ screen breach_inv_use_picker(sel_item, use_picker):
                         text breach_lit(breach_use_info):
                             size gui.size_small
                             color gui.muted_text_color
-                    text "CHOOSE A TARGET" style "breach_label_text"
+                    text "CHOOSE WHO RECEIVES IT" style "breach_label_text"
                     hbox:
                         spacing gui.pad_m
                         for m in gs["party"]:

@@ -183,7 +183,7 @@ screen creation_name_step(initial=""):
                 vbox:
                     align (0.5, 0.5)
                     spacing gui.pad_l
-                    text "What is your Name?" style "breach_header_text" xalign 0.5
+                    text "Name Your Character" style "breach_header_text" xalign 0.5
                     frame:
                         background gui.panel_frame_fill_lit
                         foreground gui.panel_frame
@@ -232,7 +232,7 @@ screen creation_race_step():
 
                     text breach_lit(REG["core"]["human"]["name"]) style "breach_header_text" xalign 0.5
 
-                    text "You are a Human. As a Human, you gain the following traits:":
+                    text "Humans begin with three flexible traits:":
                         size gui.size_base
                         color gui.breach_text_color
                         xalign 0.5

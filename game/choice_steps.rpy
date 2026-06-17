@@ -109,7 +109,7 @@ screen choice_step(char, choice, opts):
                 # D12: clarify the Versatile talent comes from the Human
                 # racial trait.
                 if choice["type"] == "versatile_talent":
-                    text "From your Human racial trait (Versatile): choose one starter Talent.":
+                    text "Human Versatility lets you choose one starter Talent.":
                         size gui.size_small
                         color gui.muted_text_color
                 if opts["mode"] == "list":
@@ -256,11 +256,11 @@ screen choice_step_asi(char, opts, asi_view, asi_scores, picks):
     ## frame-button); the active path lights amber.
     hbox:
         spacing gui.pad_s
-        textbutton "+2 ability points":
+        textbutton "+2 Ability Points":
             style "breach_frame_button"
             action SetScreenVariable("asi_view", "asi")
             selected (asi_view == "asi")
-        textbutton "Take a Talent":
+        textbutton "Choose a Talent":
             style "breach_frame_button"
             action SetScreenVariable("asi_view", "talent")
             selected (asi_view == "talent")
@@ -269,7 +269,7 @@ screen choice_step_asi(char, opts, asi_view, asi_scores, picks):
         $ asi_spent = sum(asi_scores[a] - asi_base[a] for a in asi_scores)
         hbox:
             spacing gui.pad_s
-            text "Spend 2 points (+2 to one ability, or +1 to two). Scores cap at 20." size gui.size_micro color gui.muted_text_color yalign 0.5
+            text "Spend two points: +2 to one ability, or +1 to two abilities. Scores cannot exceed 20." size gui.size_micro color gui.muted_text_color yalign 0.5
             text ("Points remaining: %d" % (2 - asi_spent)) size gui.size_micro color gui.breach_accent_color yalign 0.5
         # The SAME shared allocator component creation uses; the displayed
         # value is the live asi_scores entry (mutated by SetDict), so it
@@ -332,7 +332,7 @@ screen choice_step_asi(char, opts, asi_view, asi_scores, picks):
 ## Magic Initiate mode: choose a class slice, then 2 of its cantrips and one
 ## tier-1 spell.
 screen choice_step_magic_initiate(char, mi_class, mi_cantrips, mi_spell):
-    text "Choose one class's spell slice: learn 2 of its cantrips and one tier 1 spell." size gui.size_micro color gui.muted_text_color
+    text "Choose one class spell list. Learn two cantrips and one tier 1 spell from it." size gui.size_micro color gui.muted_text_color
     hbox:
         spacing gui.pad_m
         ## The class slice picker -- framed command buttons in a column; the
@@ -350,7 +350,7 @@ screen choice_step_magic_initiate(char, mi_class, mi_cantrips, mi_spell):
         if mi_class:
             vbox:
                 spacing gui.pad_s
-                text "Cantrips (2)" style "breach_label_text"
+                text "Cantrips: Choose 2" style "breach_label_text"
                 frame:
                     style "breach_well"
                     xsize gui.panel_w_narrow
@@ -377,7 +377,7 @@ screen choice_step_magic_initiate(char, mi_class, mi_cantrips, mi_spell):
                                         text breach_lit(sp["name"]) style "breach_frame_row_text" yalign 0.5
             vbox:
                 spacing gui.pad_s
-                text "Tier 1 spell" style "breach_label_text"
+                text "Tier 1 Spell: Choose 1" style "breach_label_text"
                 frame:
                     style "breach_well"
                     xsize gui.panel_w_narrow

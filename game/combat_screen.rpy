@@ -239,7 +239,7 @@ init python:
         player_move refusals; GDD 5.2: moving costs the Action)."""
         for cond in ("pinned", "tripped"):
             if cond in actor["conditions"]:
-                return False, "%s — can't change lanes." % cond.capitalize()
+                return False, "%s cannot change lanes." % cond.capitalize()
         if actor["flags"].get("free_move_available"):
             return True, None
         if actor["acted"]["action"]:
@@ -406,7 +406,7 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
             $ renpy.block_rollback()
             $ breach_drain_floats(combat)
             if breach_result is not None and not breach_result.get("ok", True):
-                $ renpy.notify(breach_result.get("reason") or "Can't do that.")
+                $ renpy.notify(breach_result.get("reason") or "That action is not available.")
 
     hide screen combat_screen
     $ renpy.block_rollback()
@@ -432,7 +432,7 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
         # screen's Continue goes to the main menu
         call screen combat_defeat(combat)
     else:
-        $ renpy.notify("The party flees — no XP, no loot.")
+        $ renpy.notify("The party flees. No XP or loot awarded.")
     $ combat = None
     return
 
@@ -642,7 +642,7 @@ screen combat_sidebar(combat, actor, sidebar_w):
                     for log_line in combat["log"]:
                         text breach_lit(log_line) size gui.size_micro color gui.muted_text_color
             ## BOTTOM -- the full-log opener (the big reading overlay).
-            textbutton "Full log":
+            textbutton "Full Combat Log":
                 style "breach_chip"
                 xalign 1.0
                 action SetScreenVariable("overlay", "log")
@@ -798,7 +798,7 @@ screen combat_action_panel(combat, actor, achar, p_pc, p_playable, mode, pending
                             spacing gui.pad_s
                             yalign 0.5
                             text breach_mode_caption(mode, pending) size gui.size_base color gui.breach_text_color
-                            textbutton "Cancel":
+                            textbutton "Cancel Targeting":
                                 style "breach_frame_button"
                                 action p_cancel
     ## the shared gold nineslice, positioned over the action-panel band
@@ -858,7 +858,7 @@ screen combat_overlays(combat, overlay):
                             spacing gui.pad_xs
                             for log_line in combat["log"]:
                                 text breach_lit(log_line) size gui.size_small color gui.breach_text_color
-                    textbutton "Close":
+                    textbutton "Close Log":
                         style "breach_frame_button"
                         xalign 1.0
                         action SetScreenVariable("overlay", None)
@@ -1077,7 +1077,8 @@ screen combat_main_buttons(combat, actor, achar, spells, abilities, bonus_abilit
             textbutton "Attack":
                 style "breach_frame_button"
                 sensitive mb_attack_ok
-                tooltip ("Action spent." if not mb_attack_ok else None)
+                tooltip ("Action spent." if not mb_attack_ok
+                         else "Spend your Action to make weapon attacks against a valid enemy target.")
                 action SetScreenVariable("mode", "attack")
             if mb_reckless_owner:
                 ## the reckless toggle rides the next Attack (GDD 7.5)
@@ -1089,32 +1090,43 @@ screen combat_main_buttons(combat, actor, achar, spells, abilities, bonus_abilit
             textbutton "Spells":
                 style "breach_frame_button"
                 sensitive bool(spells)
+                tooltip ("Cast a prepared or known spell. The spell tooltip shows action cost, range, target, saves, damage, healing, and Concentration."
+                         if spells else "No castable spells are available right now.")
                 action SetScreenVariable("mode", "spell_list")
             textbutton "Abilities":
                 style "breach_frame_button"
                 sensitive bool(abilities)
+                tooltip ("Use a class feature, talent, or special combat ability."
+                         if abilities else "No usable abilities are available right now.")
                 action SetScreenVariable("mode", "ability_list")
             textbutton "Item":
                 style "breach_frame_button"
                 sensitive (mb_action_free and bool(p_items))
+                tooltip ("Spend your Action to use a shared consumable."
+                         if mb_action_free and p_items
+                         else ("Action spent." if not mb_action_free
+                               else "No consumables in the shared inventory."))
                 action SetScreenVariable("mode", "item_list")
             textbutton "Move":
                 style "breach_frame_button"
                 sensitive mb_move_ok
-                tooltip mb_move_reason
+                tooltip (mb_move_reason or "Change lanes. This normally spends your Action and may provoke if you retreat from the Frontline.")
                 action SetScreenVariable("mode", "move")
         ## Row 2 -- turn management (quieter, same style)
         hbox:
             spacing gui.pad_s
             textbutton "End Turn":
                 style "breach_frame_button"
+                tooltip "End this combatant's turn and advance initiative."
                 action Return(("end",))
             textbutton "Reactions":
                 style "breach_frame_button"
+                tooltip "Set each party member's reaction behavior: ask, always use, or never use."
                 action SetScreenVariable("overlay", "reactions")
             if combat["flee_allowed"]:
                 textbutton "Flee":
                     style "breach_frame_button"
+                    tooltip "Leave the fight. Fleeing grants no XP or loot."
                     action Return(("flee",))
         ## Bonus Action row -- ONLY when something grants one (GDD 5.2 /
         ## 15.6): a light turns on. The amber wash + lamplit ledge mark the
@@ -1143,7 +1155,7 @@ screen combat_spell_list(spells, p_cancel):
     vbox:
         spacing gui.pad_s
         xfill True
-        text "SPELLS" style "breach_label_text"
+        text "CAST A SPELL" style "breach_label_text"
         viewport:
             scrollbars "vertical"
             mousewheel True
@@ -1160,7 +1172,7 @@ screen combat_spell_list(spells, p_cancel):
                     $ sp_usable = (sp_entry["castable"] and sp_click != "unsupported" and not sp_reaction)
                     $ sp_reason = (sp_entry["reason"] if not sp_entry["castable"]
                                    else ("Casts itself from its reaction prompt." if sp_reaction
-                                         else ("Not supported yet." if sp_click == "unsupported" else None)))
+                                         else ("This spell needs a special targeting mode that is not implemented yet." if sp_click == "unsupported" else None)))
                     $ sp_tags = (("Cantrip" if sp_entry["tier"] == 0 else "Tier %d" % sp_entry["tier"])
                                  + (" · Bonus" if sp_rec.get("action") == "bonus" else "")
                                  + (" · Concentration" if sp_rec.get("concentration") else ""))
@@ -1192,7 +1204,7 @@ screen combat_ability_list(abilities, p_cancel):
     vbox:
         spacing gui.pad_s
         xfill True
-        text "ABILITIES" style "breach_label_text"
+        text "USE AN ABILITY" style "breach_label_text"
         viewport:
             scrollbars "vertical"
             mousewheel True
@@ -1259,9 +1271,9 @@ screen combat_ability_options(abilities, achar, pending, p_cancel):
                                SetScreenVariable("mode", "ability_target")]
                               if ao_target
                               else Return(("ability", pending, None, None)))
-                textbutton "None":
+                textbutton "No Extra Option":
                     style "breach_frame_button"
-                    tooltip "Use without an option."
+                    tooltip "Use the ability without adding one of its optional riders."
                     action ao_plain
         textbutton "Cancel":
             style "breach_frame_button"
@@ -1272,7 +1284,7 @@ screen combat_item_list(p_items, p_cancel):
     vbox:
         spacing gui.pad_s
         xfill True
-        text "CONSUMABLES (SHARED INVENTORY)" style "breach_label_text"
+        text "USE A SHARED CONSUMABLE" style "breach_label_text"
         viewport:
             scrollbars "vertical"
             mousewheel True
@@ -1313,18 +1325,18 @@ screen reaction_prompt(card):
                 text "Cost: [rp_cost]" size gui.size_small color gui.breach_accent_color
                 hbox:
                     spacing gui.pad_m
-                    textbutton "Use":
+                    textbutton "Use Reaction":
                         style "breach_frame_button"
                         action Return(True)
-                    textbutton "Pass":
+                    textbutton "Decline":
                         style "breach_frame_button"
                         action Return(False)
                 hbox:
                     spacing gui.pad_m
-                    textbutton "Always use this":
+                    textbutton "Always Use":
                         style "breach_chip"
                         action [Function(breach_set_reaction_pref, card, "always"), Return(True)]
-                    textbutton "Never use this":
+                    textbutton "Never Use":
                         style "breach_chip"
                         action [Function(breach_set_reaction_pref, card, "never"), Return(False)]
 
@@ -1342,7 +1354,7 @@ screen reaction_settings(close_action):
                 spacing gui.pad_m
                 xfill True
                 use section_header("Reactions")
-                text "Ask prompts in combat; Always resolves silently; Never declines." size gui.size_small color gui.muted_text_color
+                text "Ask shows a prompt in combat. Always resolves automatically. Never declines automatically." size gui.size_small color gui.muted_text_color
                 viewport:
                     scrollbars "vertical"
                     mousewheel True
@@ -1363,7 +1375,7 @@ screen reaction_settings(close_action):
                                             style "breach_chip"
                                             selected (r_cur == r_mode)
                                             action SetDict(member["reaction_preferences"], r_aid, r_mode)
-                textbutton "Close":
+                textbutton "Close Reactions":
                     style "breach_frame_button"
                     xalign 1.0
                     action close_action

@@ -7,32 +7,32 @@ WEAPON_PROPERTIES = {
     "finesse": {
         "id": "finesse",
         "name": "Finesse",
-        "effect": "Use Strength or Dexterity.",
+        "effect": "Use either Strength or Dexterity for attack and damage rolls, whichever is better.",
         "src": "§10.4 L1210",
     },
     "light": {
         "id": "light",
         "name": "Light",
-        "effect": "Dual-wieldable.",
+        "effect": "Can be used in the off hand when both your mainhand and offhand weapons are Light.",
         "src": "§10.4 L1210",
     },
     "heavy": {
         "id": "heavy",
         "name": "Heavy",
-        "effect": "Requires Strength 13 — this applies to bows as well.",
+        "effect": "Requires Strength 13 to equip. This applies to heavy bows as well as melee weapons.",
         "str_req": 13,
         "src": "§10.4 L1211",
     },
     "two_handed": {
         "id": "two_handed",
         "name": "Two-Handed",
-        "effect": "Occupies both mainhand and offhand.",
+        "effect": "Requires both hands. Equipping it clears your offhand slot.",
         "src": "§10.4 L1212, §10.2 L1182",
     },
     "thrown": {
         "id": "thrown",
         "name": "Thrown",
-        "effect": "Usable as a ranged attack.",
+        "effect": "Can be used for ranged attacks.",
         "src": "§10.4 L1212",
     },
     "ranged": {
@@ -47,49 +47,49 @@ MASTERIES = {
     "vex": {
         "id": "vex",
         "name": "Vex",
-        "effect": "On a hit, you have advantage on your next attack against that target.",
+        "effect": "On hit, your next attack against the same target has advantage.",
         "src": "§10.3 L1195-1196",
     },
     "sap": {
         "id": "sap",
         "name": "Sap",
-        "effect": "On a hit, the target has disadvantage on its next attack.",
+        "effect": "On hit, the target has disadvantage on its next attack.",
         "src": "§10.3 L1197",
     },
     "nick": {
         "id": "nick",
         "name": "Nick",
-        "effect": "The Light-weapon offhand attack folds into the Attack action (freeing the Bonus Action).",
+        "effect": "When dual-wielding Light weapons, the offhand attack is part of your Attack action instead of costing your Bonus Action.",
         "src": "§10.3 L1198-1199",
     },
     "graze": {
         "id": "graze",
         "name": "Graze",
-        "effect": "On a miss, deal damage equal to your ability modifier.",
+        "effect": "On miss, still deal damage equal to the attack ability modifier.",
         "src": "§10.3 L1200",
     },
     "cleave": {
         "id": "cleave",
         "name": "Cleave",
-        "effect": "On a melee hit, attack a second enemy in the same lane (no ability modifier to that damage); once per turn.",
+        "effect": "Once per turn on a melee hit, attack a second enemy in the same lane. The second hit does not add your ability modifier to damage.",
         "src": "§10.3 L1201-1202",
     },
     "push": {
         "id": "push",
         "name": "Push",
-        "effect": "On a hit, push the target from its Frontline to its Backline.",
+        "effect": "On hit, push the target from its Frontline to its Backline.",
         "src": "§10.3 L1203",
     },
     "slow": {
         "id": "slow",
         "name": "Slow",
-        "effect": "On a damaging hit, the target is Pinned (cannot change lanes on its next turn).",
+        "effect": "On a damaging hit, the target becomes Pinned and cannot change lanes on its next turn.",
         "src": "§10.3 L1204-1205",
     },
     "topple": {
         "id": "topple",
         "name": "Topple",
-        "effect": "On a hit, Constitution save (DC 8 + ability modifier + proficiency) or the target is Staggered.",
+        "effect": "On hit, the target makes a Constitution save against DC 8 + your attack ability modifier + proficiency. On failure, it becomes Staggered.",
         "src": "§10.3 L1206-1207",
     },
 }
@@ -437,7 +437,7 @@ CONSUMABLES = {
         "heal": {"dice": "2d8"},
         "heal_type": "healing",
         "stock_limited": False,
-        "effect": "Heal 2d8. Cannot revive.",
+        "effect": "Restore 2d8 HP to a living target. Cannot revive a Downed character.",
         "src": "§14.4 L1444",
     },
     "greater_healing_potion": {
@@ -447,7 +447,7 @@ CONSUMABLES = {
         "heal": {"dice": "4d8"},
         "heal_type": "healing",
         "stock_limited": False,
-        "effect": "Heal 4d8.",
+        "effect": "Restore 4d8 HP to a living target. Cannot revive a Downed character.",
         "src": "§14.4 L1445",
     },
     "superior_healing_potion": {
@@ -457,7 +457,7 @@ CONSUMABLES = {
         "heal": {"dice": "6d8"},
         "heal_type": "healing",
         "stock_limited": False,
-        "effect": "Heal 6d8.",
+        "effect": "Restore 6d8 HP to a living target. Cannot revive a Downed character.",
         "src": "§14.4 L1446",
     },
     "phoenix_draught": {
@@ -467,7 +467,7 @@ CONSUMABLES = {
         "heal": {"dice": "3d8"},
         "heal_type": "true_healing",
         "stock_limited": True,
-        "effect": "Revive a Downed ally at 3d8 HP. True Healing — the only consumable revive.",
+        "effect": "True Healing. Revive a Downed ally and restore 3d8 HP. This is the only consumable that can revive.",
         "src": "§14.4 L1447",
     },
 }
@@ -477,7 +477,7 @@ CAMP_UPGRADES = {
         "id": "provisioners_pack_frame",
         "name": "Provisioner's Pack-Frame",
         "price": 300,
-        "effect": "+1 Supply Cache capacity.",
+        "effect": "Increase Supply Cache capacity by 1.",
         "src": "§14.3 L1430",
     },
     "fieldwrights_tent": {
@@ -485,14 +485,14 @@ CAMP_UPGRADES = {
         "name": "Fieldwright's Tent",
         "price": 400,
         "recovery_dice_bonus": 2,        # engine value (#14.3 L1431)
-        "effect": "+2 Recovery Dice per Camp.",
+        "effect": "Each party member gains 2 additional Recovery Dice per Camp.",
         "src": "§14.3 L1431",
     },
     "cooks_kit": {
         "id": "cooks_kit",
         "name": "Cook's Kit",
         "price": 250,
-        "effect": "When the hunter succeeds, each party member also heals HP equal to their own level.",
+        "effect": "When a Camp hunting check succeeds, each party member also heals HP equal to their own level.",
         "src": "§14.3 L1432",
     },
 }

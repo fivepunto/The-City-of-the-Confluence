@@ -68,9 +68,9 @@ DISPLAY = {
         "cutting_quip": "Cut a distant enemy down with a stinging insult for psychic damage, unless their Wisdom lets them brush it off; the sting also throws off their next attack, making it more likely to miss.",
         "eldritch_lash": "Lash out at a distant enemy with raw magical force for force damage. As you grow stronger this gains extra beams (a second at level 5, a third at level 11), letting you strike multiple enemies at once.",
         "ember_jet": "Hurl a jet of fire at a distant enemy, scorching them for fire damage if you hit.",
-        "frost_lance": "Drive a spear of cold into one enemy. Unless they shrug off the chill (a Constitution check), they're frozen in place and can't move to another lane next turn.",
+        "frost_lance": "Drive a spear of cold into one enemy. Unless they shrug off the chill (a Constitution check), they are frozen in place and cannot move to another lane next turn.",
         "grasping_vines": "Summon vines to ensnare one enemy and hold them fast. Unless they break free (a Strength check, which they can keep attempting on their turns) they're pinned. You must stay focused to keep the grip.",
-        "gravewhisper": "Whisper death at a distant enemy for withering necrotic damage; on a hit, they can't recover any health until the start of your next turn.",
+        "gravewhisper": "Whisper death at a distant enemy for withering necrotic damage; on a hit, they cannot recover any health until the start of your next turn.",
         "guidance": "Touch an ally to lend them a little extra luck on their next ordinary skill attempt. You must stay focused to keep it going.",
         "hallowed_flame": "Call down holy fire on a distant enemy for radiant damage. They can only avoid it by dodging with their Dexterity, so even well-armored foes aren't safe.",
         "malediction": "Curse one group of enemies so their attacks and their efforts to resist danger are weakened. You must stay focused to keep the curse going.",
@@ -79,7 +79,7 @@ DISPLAY = {
         "quarrys_mark": "Mark one enemy as your prey, so every weapon strike you make against them hits a little harder. You must stay focused to keep the mark.",
         "radiant_smite": "Right after you land a melee blow, channel holy light to add a burst of radiant damage to that hit.",
         "resistance": "Touch an ally to bolster their next attempt to resist a threat, giving them a small edge. You must stay focused to keep it going.",
-        "rimefinger": "Loose a chilling bolt at a far-off enemy for cold damage; on a hit, the cold roots them in place so they can't shift to another lane next turn.",
+        "rimefinger": "Loose a chilling bolt at a far-off enemy for cold damage; on a hit, the cold roots them in place so they cannot shift to another lane next turn.",
         "searing_burst": "Engulf a group of enemies in a blast of fire. Quick ones who dive aside (a Dexterity check) take only half the damage.",
         "sickening_ray": "Strike one enemy with a ray of sickening poison. Aim true to hit, and unless they endure it (a Constitution check) they're left Poisoned and weakened until the end of their next turn.",
         "slumber": "Lull the most-wounded enemies in one lane into a deep, helpless sleep. The weakest fall first, and there's no resisting it.",
@@ -149,7 +149,7 @@ DISPLAY = {
         "barbarian_instinctive_pounce": "The moment you enter a Rage, you can spring to a different lane for free.",
         "barbarian_mindless_rage": "While raging, your fury makes you impossible to charm or frighten.",
         "barbarian_persistent_rage": "Your Rage no longer fades on its own; it lasts until you choose to end it or you're knocked down.",
-        "barbarian_rage": "Whip yourself into a Rage and shrug off the worst of physical blows, hit harder with your muscle (Strength), and stay surefooted when you push or shove. While raging you can't cast spells or hold your focus on one. Lasts a few outbursts before you need to rest at Camp.",
+        "barbarian_rage": "Whip yourself into a Rage and shrug off the worst of physical blows, hit harder with your muscle (Strength), and stay surefooted when you push or shove. While raging you cannot cast spells or hold your focus on one. Lasts a few outbursts before you need to rest at Camp.",
         "barbarian_reckless_attack": "Throw caution aside and swing wildly: your muscle-powered (Strength) attacks roll twice and keep the better result, but enemies get the same edge against you until your next turn.",
         "barbarian_relentless_rage": "While raging, a blow that would drop you instead leaves you clinging to life if you can steel yourself (Constitution); it gets harder each time you rely on it, and resets when you rest at Camp.",
         "barbarian_retaliation": "When an enemy close enough to strike hurts you, you instantly strike back at it for free.",
@@ -172,7 +172,7 @@ DISPLAY = {
         "cleric_preserve_life": "A new use of your god's power: pour out a pool of healing (larger as you level) and share it among your most wounded allies, including yourself, though it can only bring each of them back up to half health. This is called Preserve Life.",
         "cleric_sear_undead": "When you drive back the undead, you also scorch them with searing holy light, harming each one you affect. This is called Sear Undead.",
         "cleric_supreme_healing": "Your healing reaches its fullest: whenever a spell or your god's power would restore health, you always heal the greatest possible amount instead of leaving it to chance. This is called Supreme Healing.",
-        "druid_aspects": "You can take on the form and instincts of a primal beast, gaining its powers for the fight. While shaped this way you can't cast your bigger spells, only your simple at-will ones, and the form lasts until you drop it or fall in battle.",
+        "druid_aspects": "You can take on the form and instincts of a primal beast, gaining its powers for the fight. While shaped this way you cannot cast your bigger spells, only your simple at-will ones, and the form lasts until you drop it or fall in battle.",
         "druid_circle": "You join a Druid Circle that shapes your magic: the Ruined World wields decay to wound foes and mend allies, the Wild deepens each of your beast forms, or the Shepherd strengthens your spirit companion and summoned creatures.",
         "druid_elemental_fury": "You sharpen your power one of two ways: Potent, adding your Wisdom to the damage of your at-will spells, or Primal Strike, adding extra damage to your weapon and beast attacks.",
         "druid_natural_recovery": "Once per Camp, when you take a short rest, you draw fresh magic from the world and recover some of your spent spell energy.",
@@ -209,14 +209,14 @@ DISPLAY = {
         "monk_unarmored_movement_2": "Your free dash between battle lines is now so swift that foes never get an opening to strike at you for it.",
         "monk_uncanny_metabolism": "Once per Camp, the moment a fight begins you snap fully back to form, refilling all your inner focus and healing yourself.",
         "monk_wholeness_of_body": "With a quick centering breath, you mend your own wounds and heal yourself.",
-        "paladin_abjure_foes": "Calling on your divine power, you terrify an entire group of enemies, leaving them too frightened to move if they can't steel their nerve.",
+        "paladin_abjure_foes": "Calling on your divine power, you terrify an entire group of enemies, leaving them too frightened to move if they cannot steel their nerve.",
         "paladin_aura_of_courage": "Your courage spreads to the allies beside you, leaving them unshakable so fear can never take hold of them.",
         "paladin_aura_of_devotion": "Your presence shields the allies beside you so that nothing can magically twist their loyalties or charm them.",
         "paladin_aura_of_protection": "You radiate a steadying presence: you and your allies standing beside you resist harmful magic and effects better, thanks to your Charisma.",
         "paladin_blessed_warrior": "You pick up two small, at-will prayers borrowed from the Cleric, little spells you can cast as often as you like.",
         "paladin_channel_divinity": "You can call on your divine power to either sharpen your weapon's aim for the whole fight or sense hidden fiends and undead nearby. You have a couple of uses, and you get one back each time you catch your breath in battle.",
         "paladin_devotion_spells": "A handful of protective and restorative prayers are always ready for you, costing you nothing from your usual list of prepared spells.",
-        "paladin_lay_on_hands": "You carry a pool of healing energy that you can lay into a wounded ally to mend their wounds, or use a little of it to wash poison out of someone. It refills when you rest at Camp, but it can't bring back an ally who has already gone down.",
+        "paladin_lay_on_hands": "You carry a pool of healing energy that you can lay into a wounded ally to mend their wounds, or use a little of it to wash poison out of someone. It refills when you rest at Camp, but it cannot bring back an ally who has already gone down.",
         "paladin_paladins_smite": "You always know the Radiant Smite spell, which wreathes your strike in holy light, and you can unleash one for free each time you rest at Camp.",
         "paladin_radiant_strikes": "Holy light sears through every melee blow you land, adding a burst of extra radiant damage.",
         "paladin_smite_of_protection": "When you call down a Radiant Smite, the light also armors your nearby allies, making them tougher to hit until your next turn.",
@@ -256,7 +256,7 @@ DISPLAY = {
         "warlock_eldritch_invocations": "Permanent magical gifts from your patron that quietly upgrade you; you can trade one out each time you level up.",
         "warlock_fiend_spells": "A line of fire spells is always ready for you, free of your normal limit, each becoming available as your magic grows strong enough to cast it.",
         "warlock_fiendish_resilience": "Each time you rest, pick a kind of damage (anything but raw force) and you'll shrug off half of it until you choose a different kind.",
-        "warlock_hurl_through_hell": "Once each turn when you land a hit, you can try to banish the target through the hells if it can't resist your Charisma; it vanishes briefly and reels with heavy mind-rending damage when it returns. Usable once per Camp, and you can restore it by spending a spell slot.",
+        "warlock_hurl_through_hell": "Once each turn when you land a hit, you can try to banish the target through the hells if it cannot resist your Charisma; it vanishes briefly and reels with heavy mind-rending damage when it returns. Usable once per Camp, and you can restore it by spending a spell slot.",
         "warlock_magical_cunning": "Just by having you in the group, the whole party gets one extra short Breather at Camp (three instead of two). Having more than one Warlock doesn't add more.",
         "warlock_mystic_arcanum": "Choose one of the mightiest spells in your repertoire and cast it once between Camps without spending a slot.",
         "warlock_pact_magic": "Your spell slots all share one power level that grows as you level up, every spell you cast is automatically boosted to that level, and your slots come back after a short Breather rather than a full rest.",
@@ -281,41 +281,38 @@ DISPLAY = {
         "superior_healing_potion": "The finest healing brew, restoring a great deal of health to a single living ally.",
         "phoenix_draught": "A rare and costly elixir that pulls a fallen ally back from the brink, reviving them with a burst of health. The only potion that can revive the downed.",
     },
-    # Relic flavour is owner-authored (GAPS G-040); placeholders ship so the
-    # item card has something to show. No jargon, so the voice gate passes.
+    # Relic flavor is owner-authored (GAPS G-040); these entries stay factual
+    # and rule-facing until the owner adds bespoke lore.
     "relics": {
-        "relic_a": "[Relic flavour — to be written by the project owner.]",
-        "relic_b": "[Relic flavour — to be written by the project owner.]",
-        "relic_c": "[Relic flavour — to be written by the project owner.]",
+        "relic_a": "Common sell-only relic. Vendors buy it for 75 gold. No alternate use is implemented.",
+        "relic_b": "Uncommon sell-only relic. Vendors buy it for 300 gold. No alternate use is implemented.",
+        "relic_c": "Rare sell-only relic. Vendors buy it for 2000 gold. No alternate use is implemented.",
     },
-    # Magic-item descriptions route through DISPLAY (not the raw record
-    # `effect`) so the voice gate covers them once the owner authors real
-    # effects (#15.0; GAPS G-040). Placeholders for now.
+    # Magic-item descriptions stay factual until the owner authors real
+    # item powers (#15.0; GAPS G-040).
     "magic_items": {
-        "magic_item_a": "[Magic-item details — to be written by the project owner.]",
-        "magic_item_b": "[Magic-item details — to be written by the project owner.]",
-        "magic_item_c": "[Magic-item details — to be written by the project owner.]",
+        "magic_item_a": "Uncommon ring. +1 item rating. No combat effect is implemented yet. Shop price: 350 gold.",
+        "magic_item_b": "Rare cloak. +2 item rating. No combat effect is implemented yet. Shop price: 1800 gold.",
+        "magic_item_c": "Very rare head slot item. No combat effect is implemented yet. Very rare items are not sold by vendors.",
     },
     # Condition tooltips, re-voiced for players (#15.0): the raw condition
     # `effect` carries banned jargon (saves, DC, advantage, "automatic
     # critical"), so the combat condition chip reads these warm strings
-    # instead. Owner-authored (GAPS G-040); placeholders ship so the voice
-    # gate passes and the chip has something to show. Keys = the condition
-    # ids in data/conditions.py.
+    # instead. Keys = the condition ids in data/conditions.py.
     "conditions": {
-        "asleep": "[Condition wording — to be written by the project owner.]",
-        "paralyzed": "[Condition wording — to be written by the project owner.]",
-        "charmed": "[Condition wording — to be written by the project owner.]",
-        "frightened": "[Condition wording — to be written by the project owner.]",
-        "pinned": "[Condition wording — to be written by the project owner.]",
-        "staggered": "[Condition wording — to be written by the project owner.]",
-        "tripped": "[Condition wording — to be written by the project owner.]",
-        "stunned": "[Condition wording — to be written by the project owner.]",
-        "poisoned": "[Condition wording — to be written by the project owner.]",
-        "hidden": "[Condition wording — to be written by the project owner.]",
-        "turned": "[Condition wording — to be written by the project owner.]",
-        "downed": "[Condition wording — to be written by the project owner.]",
-        "bloodied": "[Condition wording — to be written by the project owner.]",
-        "concentrating": "[Condition wording — to be written by the project owner.]",
+        "asleep": "Cannot act. Any damage wakes the sleeper. The first hit against them is an automatic critical hit.",
+        "paralyzed": "Cannot act. Attacks against the target have advantage, and melee hits are automatic critical hits. The target repeats its save at the end of its turns.",
+        "charmed": "Cannot attack or target the creature that charmed them.",
+        "frightened": "Has disadvantage on attacks and ability checks while the source of fear is present.",
+        "pinned": "Cannot move or change lanes on its next turn.",
+        "staggered": "Off balance. Attacks against the target have advantage until the source's next turn begins.",
+        "tripped": "On the ground. Attacks against the target have advantage, it cannot change lanes, and standing consumes its Action at the start of its turn.",
+        "stunned": "Cannot act. Attacks against the target have advantage, and it automatically fails Strength and Dexterity saves.",
+        "poisoned": "Has disadvantage on attack rolls and ability checks. Repeats its save at the end of its turns.",
+        "hidden": "Cannot be single-targeted while in the Backline. Lane-wide effects still hit and reveal it. Attacking from Hidden reveals the attacker and grants advantage on that attack.",
+        "turned": "Undead only. Cannot act, flees to its Backline, stays there, and ends early if it takes damage.",
+        "downed": "Unconscious and unable to act, but cannot be targeted, damaged, or finished off. Only True Healing revives a Downed character.",
+        "bloodied": "At or below half maximum HP. This is a warning state, not a penalty.",
+        "concentrating": "Maintaining one ongoing spell or effect. Taking damage forces a Constitution save: DC 10 or half the damage taken, whichever is higher. Failure ends the effect.",
     },
 }

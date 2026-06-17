@@ -61,7 +61,7 @@ MAGIC_ITEMS = {
         "slot": "ring",
         "price": 350,
         "plus_bonus": 1,
-        "effect": "[TO BE WRITTEN BY THE PROJECT OWNER]",
+        "effect": "No combat effect is implemented yet.",
         "src": "§10.7 L1262-1264",
     },
     "magic_item_b": {
@@ -71,7 +71,7 @@ MAGIC_ITEMS = {
         "slot": "cloak",
         "price": 1800,
         "plus_bonus": 2,
-        "effect": "[TO BE WRITTEN BY THE PROJECT OWNER]",
+        "effect": "No combat effect is implemented yet.",
         "src": "§10.7 L1262-1264",
     },
     "magic_item_c": {
@@ -81,7 +81,7 @@ MAGIC_ITEMS = {
         "slot": "head",
         "price": 6000,
         "plus_bonus": 0,
-        "effect": "[TO BE WRITTEN BY THE PROJECT OWNER]",
+        "effect": "No combat effect is implemented yet, and vendors do not sell very rare items.",
         "src": "§10.7 L1262-1264",
     },
 }

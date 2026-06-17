@@ -9,87 +9,98 @@ the screen helpers, not stored here."""
 CLASS_UI = {
     "fighter": {
         "id": "fighter",
-        "desc": "A versatile front-line warrior — the most reliable weapon "
-                "user in the game, strong in any armor, and able to keep "
-                "swinging when others tire. The easiest class to learn.",
+        "desc": "The cleanest weapon specialist. Fighters wear any armor, "
+                "use every weapon, heal themselves with Second Wind, and can "
+                "take an extra Action with Action Surge. Straightforward, "
+                "durable, and excellent for learning combat.",
         "src": "§7.1 L399",
     },
     "rogue": {
         "id": "rogue",
-        "desc": "A precise skirmisher who deals a burst of extra damage "
-                "whenever an ally distracts the target, and trains in more "
-                "skills than anyone for exploration and conversation.",
+        "desc": "A precise skirmisher built around Sneak Attack: strike with "
+                "advantage or while an ally threatens the target to deal heavy "
+                "extra damage. Rogues also gain more skill power than anyone "
+                "for locks, stealth, clues, and conversations.",
         "src": "§7.2 L433",
     },
     "cleric": {
         "id": "cleric",
-        "desc": "A divine healer and protector — the earliest and best at "
-                "reviving fallen allies, with holy magic that punishes the "
-                "undead. The safest anchor for a new party.",
+        "desc": "A divine anchor for the party. Clerics prepare many spells, "
+                "heal efficiently, unlock True Healing to revive Downed allies, "
+                "and use Channel Divinity for burst healing, radiant damage, "
+                "or turning undead.",
         "src": "§7.3 L474",
     },
     "wizard": {
         "id": "wizard",
-        "desc": "A scholarly spellcaster with the deepest spellbook and the "
-                "widest range of magic — but very fragile. Keep it behind "
-                "the front line and let the spells do the work.",
+        "desc": "The broadest spellcaster. Wizards start with a spellbook, "
+                "learn new spells every level, copy more at Camp, and recover "
+                "spent spell slots on a Breather. Fragile, but unmatched for "
+                "damage and utility options.",
         "src": "§7.4 L521",
     },
     "barbarian": {
         "id": "barbarian",
-        "desc": "A raging bruiser with the most health in the game and "
-                "damage resistance while enraged. Simple and tough: charge "
-                "into the front and hit hard.",
+        "desc": "A high-health bruiser who enters Rage to resist physical "
+                "damage, hit harder with Strength attacks, and shrug off fear "
+                "or charm later on. Best when kept in the Frontline and played "
+                "aggressively.",
         "src": "§7.5 L555",
     },
     "ranger": {
         "id": "ranger",
-        "desc": "A wilderness hunter who marks a quarry for extra damage, "
-                "fights well at range with a bow, and keeps the party fed "
-                "and supplied on expeditions.",
+        "desc": "A flexible hunter with weapons, survival skills, and half "
+                "casting. Rangers mark a quarry for extra weapon damage, gain "
+                "expertise in a chosen skill, and improve Camp hunting during "
+                "expeditions.",
         "src": "§7.6 L593",
     },
     "warlock": {
         "id": "warlock",
-        "desc": "A pact spellcaster with few but powerful spells that "
-                "recharge after every short rest, plus an at-will magical "
-                "blast. Having one along grants the party an extra rest "
-                "each camp.",
+        "desc": "A pact caster with few spell slots, but every slot refreshes "
+                "on a Breather and is automatically cast at its highest tier. "
+                "Eldritch Lash is reliable at will, and a Warlock grants the "
+                "party one extra Breather per Camp.",
         "src": "§7.7 L629",
     },
     "bard": {
         "id": "bard",
-        "desc": "A charismatic support caster who inspires allies to "
-                "succeed and can learn a little of every kind of magic. The "
-                "most flexible class in and out of a fight.",
+        "desc": "A charismatic support caster and skill generalist. Bards "
+                "hand out Inspiration dice, weaken enemy rolls with Cutting "
+                "Words, add half proficiency to untrained skills, and later "
+                "learn spells from outside their normal list.",
         "src": "§7.8 L688",
     },
     "paladin": {
         "id": "paladin",
-        "desc": "A holy knight in heavy armor — a sturdy front-liner who "
-                "heals by touch, smites foes with radiant power, and shields "
-                "nearby allies with protective auras.",
+        "desc": "A heavily armored front-liner with divine support. Paladins "
+                "heal from a Lay on Hands pool, smite with radiant damage, "
+                "recover Channel Divinity on Breathers, and protect allies in "
+                "their lane with auras.",
         "src": "§7.9 L725",
     },
     "druid": {
         "id": "druid",
-        "desc": "A shapeshifting nature caster who takes on primal animal "
-                "forms in battle and wields the magic of the broken world. "
-                "Flexible, but the most to manage.",
+        "desc": "A nature caster with primal Aspects. Druids can fight through "
+                "Bear, Hawk, Serpent, or Stag stances, cast a broad spell list, "
+                "summon allies, and recover magic on Breathers. Flexible, but "
+                "has many moving parts.",
         "src": "§7.10 L759",
     },
     "monk": {
         "id": "monk",
-        "desc": "A nimble martial artist who fights unarmed in a flurry of "
-                "strikes, deflects blows, and darts across the battlefield. "
-                "Wears no armor — speed and discipline are its defense.",
+        "desc": "A fast unarmored martial artist powered by Focus Points. "
+                "Monks strike with Dexterity, spend Focus on Flurry, defense, "
+                "or movement, deflect weapon blows, and dart between lanes "
+                "more freely than most classes.",
         "src": "§7.11 L813",
     },
     "sorcerer": {
         "id": "sorcerer",
-        "desc": "An innate spellcaster brimming with raw magic — fewer "
-                "spells than a wizard, but the most at-will cantrips and the "
-                "power to bend a spell in the moment. Fragile.",
+        "desc": "An innate caster with fewer spells than a Wizard but more "
+                "ways to shape them. Sorcery Points fuel Metamagic, slot "
+                "conversion, and later dragon wings. Fragile, explosive, and "
+                "best for players who want spell control.",
         "src": "§7.12 L858",
     },
 }

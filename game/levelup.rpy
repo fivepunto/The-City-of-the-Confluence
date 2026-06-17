@@ -105,7 +105,7 @@ screen levelup_gains(char, working, pending):
                 hbox:
                     xfill True
                     yalign 0.5
-                    use breach_title("What you gain")
+                    use breach_title("Level-Up Gains")
                     null:
                         xfill True
                     use breach_stat_cell("Level", working["level"], gui.breach_accent_color)
@@ -136,7 +136,7 @@ screen levelup_gains(char, working, pending):
                         ## The new features are a scannable framed list sunk into
                         ## the recessed ground: one list row each, or a structured
                         ## empty state when the level grants none.
-                        text "New features" style "breach_label_text"
+                        text "New Features" style "breach_label_text"
                         frame:
                             style "breach_well"
                             xfill True
@@ -152,7 +152,7 @@ screen levelup_gains(char, working, pending):
                         ## Pending choices previewed as a numbered mini-list so the
                         ## player sees count-as-list before the stepper; a
                         ## structured empty state when there are none.
-                        text "Choices ahead" style "breach_label_text"
+                        text "Choices Ahead" style "breach_label_text"
                         frame:
                             style "breach_well"
                             xfill True
@@ -206,7 +206,7 @@ screen levelup_confirm(char, working, log):
                 hbox:
                     xfill True
                     yalign 0.5
-                    use breach_title("Confirm level up")
+                    use breach_title("Confirm Level Up")
                     null:
                         xfill True
                     use breach_stat_cell("Level", working["level"], gui.breach_accent_color)

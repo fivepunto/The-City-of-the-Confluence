@@ -2,9 +2,6 @@
 assembled by game/data/__init__.py -- this module never imports game.data,
 so there is no import cycle and tests can feed it fixtures.
 """
-
-import re
-
 ABILITY_IDS = ("str", "dex", "con", "int", "wis", "cha")
 
 CASTER_CLASS_IDS = ("wizard", "sorcerer", "cleric", "druid", "bard",
@@ -156,7 +153,7 @@ def content_problems(registry):
       (b) the spell-slice matrix re-derived from spell tags vs the GDD #9.2
           literal counts (a literal-number check per GDD 16.5, never a data
           block), and
-      (c) a player-voice jargon scan of the DISPLAY strings (GDD 15.0)."""
+      (c) unresolved placeholder text in DISPLAY strings."""
     problems = ["structure: " + p for p in validate(registry)]
 
     # (b) the GDD #9.2 access matrix (docs/gdd.md L965-974); index 0 = cantrips,
@@ -180,25 +177,19 @@ def content_problems(registry):
                 problems.append("slice 9.2 %s tier%d: expected %d got %d"
                                 % (cls, tier, expected[tier], got.get(tier, 0)))
 
-    # (c) the player-voice jargon scan (GDD 15.0). Dice/label tokens match as
-    # plain substrings; ability abbreviations and the saving-throw noun match
-    # on word boundaries (a bare "Cha"/"Dex"/... substring hits ordinary words
-    # like Charisma/Dexterity). The banned plural "saves" is scanned rather
-    # than the verb "save" so legitimate prose ("save up") does not trip it.
-    substr_tokens = ("d4", "d6", "d8", "d10", "d12", "d20", "DC ", "AC ")
-    word_tokens = ("Cha", "Dex", "Str", "Con", "Int", "Wis", "saves")
+    # (c) displayed copy should not ship unresolved authoring placeholders.
+    # Rules terms such as AC, DC, saves, and dice are intentionally allowed:
+    # the UI now presents BG3-style mechanical tooltips with exact values.
+    placeholder_tokens = ("TO BE WRITTEN", "Condition wording",
+                          "Magic-item details", "Relic flavour")
     for category, records in registry.get("display", {}).items():
         if not isinstance(records, dict):
             continue
         for rid, blurb in records.items():
             if not isinstance(blurb, str):
                 continue
-            for tok in substr_tokens:
+            for tok in placeholder_tokens:
                 if tok in blurb:
-                    problems.append("jargon: display[%s][%s] contains %r"
-                                    % (category, rid, tok))
-            for tok in word_tokens:
-                if re.search(r"\b" + tok + r"\b", blurb):
-                    problems.append("jargon: display[%s][%s] contains %r"
+                    problems.append("placeholder: display[%s][%s] contains %r"
                                     % (category, rid, tok))
     return problems

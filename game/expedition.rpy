@@ -67,9 +67,9 @@ init python:
         try:
             healed = brest.spend_recovery_die(REG, m, bdice.roll)
             renpy.block_rollback()                 # a committed heal (#16.1)
-            breach_toast("%s recovered %d health." % (m["name"], healed))
+            breach_toast("%s recovered %d HP." % (m["name"], healed))
         except ValueError:
-            breach_toast("No Recovery Dice left.")
+            breach_toast("No Recovery Dice remaining.")
 
 
 ## The node-based expedition map (#13.2). Plates at authored positions; only
@@ -223,15 +223,18 @@ screen expedition_map(node_id):
                     if exp_breathers > 0:
                         textbutton "Breather":
                             style "breach_frame_button"
+                            tooltip "Spend one Breather to recover short-rest resources and spend Recovery Dice."
                             action Return(("breather",))
                     else:
                         textbutton "Breather":
                             style "breach_frame_button"
                             sensitive False
                             at breach_desaturate
+                            tooltip "No Breathers remain until you Camp."
                             action Return(("breather",))
                     textbutton "Leave the Breach":
                         style "breach_frame_button"
+                        tooltip "Return to the city from the expedition."
                         action Return(("leave",))
 
 
@@ -287,12 +290,12 @@ screen breather_recovery():
                                         xfill True
                                     ## the verb rides the right-meta column; the
                                     ## whole row is the spend affordance.
-                                    text "Spend a die":
+                                    text "Spend Recovery Die":
                                         size gui.size_base
                                         yalign 0.5
                                         xalign 1.0
                                         color (gui.breach_accent_color if exp_can_spend else gui.muted_text_color)
-                textbutton "Done":
+                textbutton "Finish Recovery":
                     style "breach_frame_button"
                     xalign 1.0
                     action Return(None)
@@ -380,7 +383,7 @@ label breach_expedition_hud(intent):
 ## day clock, play the ambient beat, then offer Recovery Dice.
 label expedition_breather:
     if brest.breathers_remaining(REG, gs, gs["party"]) <= 0:
-        $ breach_toast("No Breathers left until you Camp.")
+        $ breach_toast("No Breathers remain until you Camp.")
     else:
         $ brest.take_breather(REG, gs, gs["party"])
         $ renpy.block_rollback()             # the Breather is committed (#16.1)

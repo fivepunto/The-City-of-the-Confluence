@@ -44,7 +44,7 @@ label after_load:
 
 label start:
     $ gs = bstate.new_game_state(REG)
-    "Breach prototype — P1 (character creation & sheet)."
+    "Breach prototype. Create a character, explore the city, enter the Breach, and test combat."
     jump p1_hub
 
 
@@ -52,8 +52,8 @@ label p1_hub:
     while True:
         if not gs["party"]:
             menu:
-                "P2 — what do you want to do?"
-                "Play the prologue (P5)":
+                "What do you want to do?"
+                "Play the prologue":
                     call prologue
                 "Create the protagonist":
                     call character_creation
@@ -63,25 +63,25 @@ label p1_hub:
                     return
         else:
             menu:
-                "P2 — what do you want to do?"
-                "Enter the city (Free Mode)":
+                "What do you want to do?"
+                "Enter the city":
                     call city_free_mode
-                "Enter the Breach (expedition)":
+                "Enter the Breach":
                     call expedition_mode
-                "Fight: Young Wolf (the tutorial fight)":
+                "Tutorial fight: Young Wolf":
                     call combat_encounter(["young_wolf"])
-                "Fight: wolf pack 4v4":
+                "Test fight: Wolf Pack":
                     call combat_encounter(["standard_wolf", "standard_wolf", "standard_wolf", "standard_wolf"])
-                "Character sheet":
+                "Open character sheet":
                     call screen character_sheet
                     # the sheet is a level-up entry point (15.2). Guard the
                     # subscript: a screen can return a bare value (root
                     # cause B) -- only act on a well-shaped intent tuple.
                     if isinstance(_return, (tuple, list)) and len(_return) >= 2 and _return[0] == "levelup":
                         call levelup_wizard(_return[1])
-                "Inventory & equipment":
+                "Open inventory and equipment":
                     call screen inventory_screen
-                "Level up" if bch.can_level_up(REG, gs["party"][0]):
+                "Level up protagonist" if bch.can_level_up(REG, gs["party"][0]):
                     call levelup_wizard(gs["party"][0]["id"])
                 "Open the debug hub":
                     call screen debug_hub

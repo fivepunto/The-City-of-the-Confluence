@@ -286,8 +286,8 @@ def targetable(combat, attacker, target, melee):
         return False, "Hidden — cannot be single-targeted."   # #5.6 L317
     if melee and not melee_reach(combat, attacker, target):
         if attacker["lane"] != "front":
-            return False, "Melee can't attack from the Backline."
-        return False, "Can't reach — behind the Frontline."
+            return False, "Melee attacks cannot be made from the Backline."
+        return False, "Cannot reach targets behind the Frontline."
     return True, None
 
 
@@ -1004,7 +1004,7 @@ def move_lane(registry, combat, mover, dest, forced=False, free=False):
         for cond in ("pinned", "tripped"):
             if cond in mover["conditions"]:
                 return {"ok": False,
-                        "reason": "%s — can't change lanes."
+                        "reason": "%s cannot change lanes."
                         % cond.capitalize()}
     fire(registry, combat, "line_change_declared",
          {"mover": mover["cid"], "from": mover["lane"], "to": dest,
@@ -1200,7 +1200,8 @@ def player_attack(registry, combat, actor, target, reckless=False):
     if reckless:
         if not (actor["kind"] == "pc" and
                 ch.has_feature(actor["char"], "barbarian_reckless_attack")):
-            return {"ok": False, "reason": "Can't attack recklessly."}
+            return {"ok": False,
+                    "reason": "Reckless Attack is not available."}
         actor["flags"]["reckless_open"] = True
     result = attack(registry, combat, actor, target)
     if not result["ok"]:

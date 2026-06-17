@@ -1200,7 +1200,7 @@ def castable_spells(registry, combat, actor):
                 usable, reason = False, "Action spent."
             elif actor["flags"].get("surge_extra"):
                 # the surged Action cannot cast a spell (#7.1 L409-410)
-                usable, reason = False, "The surged Action can't cast."
+                usable, reason = False, "Action Surge cannot be used to cast spells."
         if sp["tier"] > 0:
             if not _slot_available(registry, char, sp["tier"]):
                 usable, reason = False, "No slot."
@@ -1279,7 +1279,8 @@ def cast_spell(registry, combat, actor, spell_id, target=None, lane=None,
             return {"ok": False, "reason": "Action spent."}
         if actor["flags"].get("surge_extra"):
             # #7.1 L409-410: the extra Action cannot be used to cast
-            return {"ok": False, "reason": "The surged Action can't cast."}
+            return {"ok": False,
+                    "reason": "Action Surge cannot be used to cast spells."}
     elif action_kind == "bonus":
         if actor["acted"]["bonus"]:
             return {"ok": False, "reason": "Bonus Action spent."}

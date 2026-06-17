@@ -91,7 +91,7 @@ screen breach_quest_header():
         hbox:
             xfill True
             use breach_title("Quests")
-            textbutton "Close":
+            textbutton "Close Quests":
                 style "breach_button"
                 xalign 1.0
                 yalign 0.5

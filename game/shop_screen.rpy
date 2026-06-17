@@ -46,7 +46,7 @@ init python:
             bshop.buy(REG, gs, shop_id, item_id)
             renpy.block_rollback()
             store.breach_shop_error = None
-            breach_toast("Purchased.")
+            breach_toast("Purchased %s." % breach_shop_item_record(item_id)["name"])
         except ValueError as e:
             store.breach_shop_error = ("Not enough gold."
                                        if "gold" in str(e)
@@ -63,7 +63,7 @@ init python:
             store.breach_shop_error = None
             breach_toast("Sold for %d gold." % credit)
         except ValueError:
-            store.breach_shop_error = "That can't be sold here."
+            store.breach_shop_error = "This vendor will not buy that."
 
     def breach_shop_sell_rows():
         """The shared inventory ids that have a sell credit (relics, gear)
@@ -139,7 +139,7 @@ screen breach_shop_header(shop_name, mode):
                     spacing gui.pad_xs
                     yalign 0.5
                     use breach_title(shop_name)
-                    text "VENDOR" style "breach_label_text"
+                    text "SHOP" style "breach_label_text"
                 null:
                     xfill True
                 ## Right block: gold as a framed resource chip + Close.
@@ -160,7 +160,7 @@ screen breach_shop_header(shop_name, mode):
                                 size gui.size_heading
                                 color gui.breach_accent_color
                                 yalign 0.5
-                    textbutton "Close":
+                    textbutton "Close Shop":
                         style "breach_frame_button"
                         yalign 0.5
                         action Return(None)
@@ -189,7 +189,7 @@ screen breach_shop_list(shop_id, mode, sel):
                 xfill True
 
                 if mode == "buy":
-                    use section_header("In Stock")
+                    use section_header("Available Stock")
                     $ breach_shop_rows = bshop.shop_listing(REG, gs, shop_id)
                     use shop_list_well():
                         if breach_shop_rows:
@@ -238,7 +238,7 @@ screen breach_shop_list(shop_id, mode, sel):
                                 sub="This vendor has emptied their shelves.")
 
                 else:
-                    use section_header("Your Goods")
+                    use section_header("Sellable Goods")
                     $ breach_sell_rows = breach_shop_sell_rows()
                     use shop_list_well():
                         if breach_sell_rows:
@@ -259,8 +259,8 @@ screen breach_shop_list(shop_id, mode, sel):
                                     title_color=gui.rarity_colors.get(s_rarity, gui.breach_text_color),
                                     meta_color=gui.breach_accent_color)
                         else:
-                            use breach_empty_state("You have nothing to sell here.",
-                                sub="Bring relics or gear this vendor will buy.")
+                            use breach_empty_state("Nothing sellable here.",
+                                sub="This vendor buys relics and magic gear.")
 
 
 ## The shared list well: ONE recessed scrolling ground both tabs pour their
@@ -308,7 +308,7 @@ screen shop_detail_body(shop_id, mode, sel):
     vbox:
         spacing gui.pad_l
         xfill True
-        use section_header("Details")
+        use section_header("Item Details")
 
         if mode == "buy" and sel:
             $ buy_rows = bshop.shop_listing(REG, gs, shop_id)

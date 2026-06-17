@@ -58,10 +58,10 @@ screen character_sheet(initial_index=0):
                             yalign 0.5
                             xalign 1.0
                             if bch.can_level_up(REG, member):
-                                textbutton "Level up":
+                                textbutton "Level Up":
                                     style "breach_frame_button"
                                     action Return(("levelup", member["id"]))
-                            textbutton "Close":
+                            textbutton "Close Sheet":
                                 style "breach_frame_button"
                                 action Return(None)
 
@@ -350,7 +350,7 @@ screen charsheet_spells(member):
             vbox:
                 spacing gui.pad_m
                 xfill True
-                text "Prepared at Camp." style "breach_label_text"
+                text "Prepared at Camp" style "breach_label_text"
                 use section_header("Cantrips")
                 if member["spells"]["cantrips"]:
                     vbox:

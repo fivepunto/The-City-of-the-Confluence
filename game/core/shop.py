@@ -76,11 +76,11 @@ def can_sell(registry, item_id):
       - key items flagged sellable False (quest items refuse to be sold);
       - Very Rare items, while economy very_rare_sold_by_vendors is False;
       - +3 items (plus_bonus >= 3), while plus_three_items_sold is False;
-      - anything with no sell credit ("can't be sold here").
+      - anything with no sell credit ("cannot be sold here").
     Otherwise (True, "")."""
     key_item = registry.get("key_items", {}).get(item_id)
     if key_item is not None and not key_item.get("sellable", False):
-        return (False, "Quest items can't be sold.")
+        return (False, "Quest items cannot be sold.")
 
     rarity = _rarity(registry, item_id)
     if rarity == "very_rare" and not _econ(registry,
@@ -93,7 +93,7 @@ def can_sell(registry, item_id):
         return (False, "+3 items are never sold.")
 
     if sell_credit(registry, item_id) is None:
-        return (False, "This can't be sold here.")
+        return (False, "This cannot be sold here.")
 
     return (True, "")
 

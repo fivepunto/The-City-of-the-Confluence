@@ -27,17 +27,17 @@ init python:
         try:
             bstate.add_supplies(gs, 1, cap=cap)
         except ValueError:
-            breach_toast("Your Supply Caches are full.")
+            breach_toast("Supply Cache capacity is full.")
             return
         bstate.spend_gold(gs, price)
         renpy.block_rollback()                     # committed purchase (#16.1)
-        breach_toast("Bought a Supply Cache.")
+        breach_toast("Bought 1 Supply Cache.")
 
     def breach_buy_upgrade(upgrade_id):
         """One-time camp-upgrade purchase (#14.3): spend gold, flag it owned."""
         up = REG["camp_upgrades"][upgrade_id]
         if upgrade_id in gs.get("camp_upgrades", []):
-            breach_toast("Already owned.")
+            breach_toast("Upgrade already owned.")
             return
         try:
             bstate.spend_gold(gs, up["price"])
@@ -120,20 +120,23 @@ screen camp_scene():
                     xfill True
                     hbox:
                         spacing gui.pad_m
-                        textbutton "Talk" style "breach_frame_button" action Return("talk")
+                        textbutton "Talk" style "breach_frame_button" tooltip "Speak with party members at camp." action Return("talk")
                         textbutton "Breather  (%d/%d)" % (camp_breathers, camp_breather_max):
                             style "breach_frame_button"
                             sensitive (not camp_breather_spent)
+                            tooltip ("Spend a Breather to recover short-rest resources and optionally spend Recovery Dice."
+                                     if not camp_breather_spent
+                                     else "No Breathers remain until the party sleeps at Camp.")
                             action Return("breather")
-                        textbutton "Hunt" style "breach_frame_button" action Return("hunt")
-                        textbutton "Manage" style "breach_frame_button" action Return("manage")
+                        textbutton "Hunt" style "breach_frame_button" tooltip "Assign a hunter. On success, this Camp does not spend a Supply Cache." action Return("hunt")
+                        textbutton "Manage" style "breach_frame_button" tooltip "Open camp management, supplies, upgrades, inventory, and character sheets." action Return("manage")
                     hbox:
                         spacing gui.pad_l
                         ## Sleep is the focal verb -- the selected/lit frame.
-                        textbutton "Sleep" style "breach_frame_button" selected True action Return("sleep")
+                        textbutton "Sleep" style "breach_frame_button" selected True tooltip "End the Camp, restore long-rest resources, and advance the day." action Return("sleep")
                         null:
                             xfill True
-                        textbutton "Leave camp" style "breach_frame_button" action Return("leave")
+                        textbutton "Leave Camp" style "breach_frame_button" tooltip "Return without sleeping." action Return("leave")
 
                 ## The assigned-hunter state reads at a glance as an amber tag,
                 ## not a stray sentence at the foot of the screen.
@@ -455,14 +458,14 @@ label camp_sleep:
                     python:
                         for _pm in gs["party"]:
                             _pm["hp"] = min(_pm["hp"] + _pm["level"], _pm["hp_max"])
-                $ breach_toast("The hunt succeeded — no Supply spent.")
+                $ breach_toast("Hunt succeeded. No Supply Cache spent.")
             else:
-                $ breach_toast("The hunt came up empty.")
+                $ breach_toast("Hunt failed. A Supply Cache will be spent.")
 
     # Burn a Supply Cache unless the hunt spared it (#12.2 L1342).
     if not _camp_saved:
         if gs.get("supplies", 0) < 1:
-            $ breach_toast("No Supply Cache — you can't make Camp here.")
+            $ breach_toast("No Supply Cache available. You cannot Camp here.")
             return
         $ bstate.spend_supplies(gs, 1)
 
