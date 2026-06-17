@@ -21,15 +21,17 @@ init python:
         derived carry capacity (3, or 4 with the Pack-Frame)."""
         price = REG["economy"]["supply_cache_price"]["value"]
         cap = brest.supply_capacity(REG, gs)
+        if gs.get("supplies", 0) >= cap:
+            breach_toast("Supply Cache capacity is full.")
+            return
         if gs["gold"] < price:
             breach_toast("Not enough gold.")
             return
-        try:
-            bstate.add_supplies(gs, 1, cap=cap)
-        except ValueError:
-            breach_toast("Supply Cache capacity is full.")
-            return
+        # charge BEFORE granting (matching shop.buy / breach_buy_upgrade): the
+        # capacity + gold checks above precede the charge, so a cache is never
+        # granted uncharged and gold is never taken for a cache that can't fit.
         bstate.spend_gold(gs, price)
+        bstate.add_supplies(gs, 1, cap=cap)
         renpy.block_rollback()                     # committed purchase (#16.1)
         breach_toast("Bought 1 Supply Cache.")
 

@@ -290,7 +290,7 @@ screen portrait_chip(char, size=128, action=None, selected=False,
             vbox:
                 align (0.5, 0.5)
                 spacing gui.pad_xs
-                text breach_initials(char["name"]):
+                text breach_lit(breach_initials(char["name"])):
                     size gui.size_heading
                     xalign 0.5
                     color gui.breach_text_color

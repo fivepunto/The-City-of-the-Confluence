@@ -4,7 +4,7 @@ Every feature, spell, talent, item, and condition exists once, as data, in
 this package. All UI text, tooltips, level-up cards, and combat behavior
 read from it. Records store ONLY what the engine consumes -- numbers, ids,
 tags, hook shapes, and short player-facing strings (GDD #16.5, L1654-1659).
-Every record cites its doc line via "src": "#<section> L<line>" pointing at
+Every record cites its doc line via "src": "§<section> L<line>" pointing at
 docs/gdd.md.
 
 No renpy imports anywhere in this package.
@@ -30,7 +30,6 @@ REGISTRY = {
     # section 2 / 3 / 4.1 / 6 / 12.1 core tables
     "core": {
         "point_buy": core_rules.POINT_BUY,
-        "proficiency_by_level": core_rules.PROFICIENCY_BY_LEVEL,
         "xp_thresholds": core_rules.XP_THRESHOLDS,
         "damage_types": core_rules.DAMAGE_TYPES,
         "human": core_rules.HUMAN,

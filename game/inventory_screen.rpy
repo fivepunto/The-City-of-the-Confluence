@@ -130,6 +130,7 @@ init python:
         member = bstate.party_member(gs, char_id)
         try:
             binv.equip(REG, member, slot, item_id, gs["inventory"])
+            renpy.block_rollback()   # committed equip + any displaced gear (#16.1)
             store.breach_inv_error = None
         except ValueError as e:
             store.breach_inv_error = str(e)
@@ -137,6 +138,7 @@ init python:
     def breach_unequip_slot(char_id, slot):
         member = bstate.party_member(gs, char_id)
         binv.unequip(REG, member, slot, gs["inventory"])
+        renpy.block_rollback()   # a committed permanent change (#16.1)
 
     def breach_use_item(item_id, target_id):
         """Use a consumable on a party member -- works outside combat

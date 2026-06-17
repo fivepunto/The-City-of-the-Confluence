@@ -18,8 +18,9 @@ init 1 python:
     # dev-mode boot guard: the assembled registry must be structurally valid.
     # config.developer is auto-True in an unpacked project (dev / MCP runs) and
     # False in a packaged build, so players never hit this. Scoped to the
-    # structural validate(); the fuller content validator (slice matrix + voice
-    # scan) runs on demand from the debug hub's "Validate content" button.
+    # structural validate(); the fuller content validator (slice matrix +
+    # DISPLAY placeholder scan) runs on demand from the debug hub's
+    # "Validate content" button.
     if config.developer:
         from core import registry as _reg_check
         _structural = _reg_check.validate(REG)
@@ -43,8 +44,17 @@ label after_load:
 
 
 label start:
-    $ gs = bstate.new_game_state(REG)
-    "Breach prototype. Create a character, explore the city, enter the Breach, and test combat."
+    # New game enters the scripted prologue (GDD #17.2). The prologue builds the
+    # game state, runs character creation, plays the beats + tutorial fight, and
+    # ends in Free Mode; on its return (the player leaves the city) we fall into
+    # the prototype hub so play continues.
+    #
+    # A long, dramatic fade carries the main menu into the first creation screen.
+    # There is no built-in "game start" transition (see options.rpy), so we
+    # transition the next interaction directly. game_start_fade is defined in
+    # options.rpy (slower than the stock `fade`, for an epic open).
+    $ renpy.transition(game_start_fade)
+    call prologue
     jump p1_hub
 
 

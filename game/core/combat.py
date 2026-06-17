@@ -133,8 +133,12 @@ def _roll_initiative(registry, combat):
     for cid, c in combat["combatants"].items():
         mod = _initiative_mod(registry, c)
         roll = dice.d(20) + mod
-        coin = dice.d(2)
-        rolls[cid] = (roll, _dex_mod(c), coin)
+        # tie-break (#5.1 L206-209): higher Dex mod, then a distinct random
+        # key so equal (roll, dex) combatants get a decisive, unbiased order
+        # instead of a shared 1-or-2 coin that ties ~50% and otherwise falls
+        # back to insertion order.
+        tiebreak = dice.d(1 << 30)
+        rolls[cid] = (roll, _dex_mod(c), tiebreak)
         c["initiative"] = roll
     combat["order"] = sorted(rolls, key=lambda cid: rolls[cid], reverse=True)
     fire(registry, combat, "initiative_rolled", {"order": list(combat["order"])})
@@ -520,8 +524,14 @@ def saving_throw(registry, combat, target, ability, dc, advantage=0):
     the save_prompted ctx."""
     ctx = fire(registry, combat, "save_prompted",
                {"target": target["cid"], "ability": ability, "dc": dc,
-                "advantage": advantage})
-    advantage = ctx.get("advantage", advantage)
+                "advantage": advantage, "adv": [], "dis": []})
+    # adv/dis aggregate and cancel to net 0 when both are present (#2.2),
+    # matching attacks; the `advantage` scalar seeds the baseline so callers
+    # that pre-net (or a hook that still writes the scalar) keep working.
+    _base = ctx.get("advantage", advantage)
+    _has_adv = bool(ctx.get("adv")) or _base > 0
+    _has_dis = bool(ctx.get("dis")) or _base < 0
+    advantage = (1 if _has_adv else 0) - (1 if _has_dis else 0)
     # rolled lane modifiers (Benediction +1d4 / Malediction -1d4 to
     # saves, #9.5 L1041/L1045) aggregate through the ctx
     save_bonus = ctx.get("save_bonus", 0)
@@ -644,14 +654,20 @@ def _remove_from_order(combat, cid):
         return
     idx = combat["order"].index(cid)
     combat["order"].remove(cid)
-    # turn indexes the current actor, so turn == idx means the CURRENT actor
-    # is being removed; step the pointer back one so the next advance_turn
-    # lands on the combatant that shifted into the freed slot (instead of
-    # skipping it). >= covers both the after-current and is-current cases.
+    # turn indexes the current actor. Removing an entry at or before `turn`
+    # shifts later entries down, so step the pointer back one to keep the next
+    # advance_turn on the right combatant. >= covers both the after-current and
+    # is-current cases.
     if combat["turn"] >= idx:
         combat["turn"] -= 1
-    # clamp out-of-range (including the -1 that the step-back can produce when
-    # the current actor sat at index 0)
+    # clamp out-of-range. KNOWN DEFENSIVE EDGE: if the CURRENT actor is removed
+    # while at index 0 (turn == idx == 0), the step-back yields -1 and is
+    # clamped to 0; the next advance_turn then fires turn_end for whichever
+    # combatant shifted into slot 0 and skips it for that round. This path is
+    # not reached in normal play -- summons leave the order when they die on
+    # another combatant's turn, not as the index-0 current actor -- so it is
+    # left as a documented limitation rather than restructure advance_turn's
+    # turn_end/turn_start timing.
     if combat["order"] and not (0 <= combat["turn"] < len(combat["order"])):
         combat["turn"] = 0
 
@@ -705,8 +721,9 @@ def _hit_zero(registry, combat, source, target):
 
 
 def _victory(registry, combat):
+    # fled enemies (#5.9) are not defeated -- exclude them from the XP tally
     xp = sum(c["stats"]["xp"] for c in combat["combatants"].values()
-             if c["side"] == "enemy")
+             if c["side"] == "enemy" and not c.get("fled"))
     combat["over"] = {"result": "victory", "xp": xp}
     log(combat, "Victory! %d XP." % xp)
 
@@ -836,12 +853,18 @@ def _weapon_damage_dice(registry, attacker, weapon):
 
 
 def attack(registry, combat, attacker, target, opportunity=False,
-           unarmed=False):
+           unarmed=False, attack_id=None):
     """One weapon/natural attack, #2.4 + #5.3 + #5.4. Returns a result
     dict. The caller handles action economy; opportunity attacks come
     through the reaction pipeline. unarmed=True forces an unarmed strike
     regardless of the equipped weapon (Flurry of Blows / the Martial
-    Arts Bonus-Action strike, #7.11 L819-824)."""
+    Arts Bonus-Action strike, #7.11 L819-824). attack_id names which natural
+    attack a non-pc uses (intent attack(<id>)); defaults to the first entry."""
+    # Charmed cannot attack the charmer (#5.6 L310): hard-refuse so neither the
+    # enemy AI nor any player path can resolve an attack on the recorded source.
+    _charm = attacker["conditions"].get("charmed")
+    if _charm and _charm.get("source") == target["cid"]:
+        return {"ok": False, "reason": "Charmed — cannot attack the charmer."}
     weapon = None if unarmed else weapon_of(registry, attacker)
     melee = True
     if attacker["kind"] == "pc" and weapon and \
@@ -857,7 +880,8 @@ def attack(registry, combat, attacker, target, opportunity=False,
         bonus, ability = _attack_bonus(registry, attacker, weapon)
         dmg_mod = ch.ability_mod(attacker["char"], ability)
     else:
-        atk = attacker["stats"]["attacks"][0]
+        _atks = attacker["stats"]["attacks"]
+        atk = next((a for a in _atks if a.get("id") == attack_id), _atks[0])
         bonus, dmg_mod, ability = atk["to_hit"], 0, None
 
     ctx = fire(registry, combat, "attack_declared",
@@ -919,7 +943,6 @@ def attack(registry, combat, attacker, target, opportunity=False,
         dice_str = _weapon_damage_dice(registry, attacker, weapon)
         dtype = weapon["damage_type"] if weapon else "bludgeoning"
     else:
-        atk = attacker["stats"]["attacks"][0]
         dice_str, dtype = atk["dice"], atk["damage_type"]
     hit_ctx = fire(registry, combat, "attack_hit",
                    {"attacker": attacker["cid"], "target": target["cid"],
@@ -944,7 +967,7 @@ def attack(registry, combat, attacker, target, opportunity=False,
 
     # statblock riders: e.g. the Wolf's Bite (#11.2 L1296-1297)
     if attacker["kind"] != "pc" and standing(target):
-        rider = attacker["stats"]["attacks"][0].get("rider")
+        rider = atk.get("rider")
         if rider:
             result = saving_throw(registry, combat, target,
                                   rider["save"]["ability"],
@@ -1098,6 +1121,11 @@ def _intent_select(registry, combat, actor, selector):
     other = "party" if actor["side"] == "enemy" else "enemy"
     pool = combatants_on(combat, other)
     pool = [c for c in pool if "hidden" not in c["conditions"]]
+    # Charmed cannot target the charmer (#5.6 L310): drop them; if the charmer
+    # is the only option there is no legal target this turn.
+    _charm = actor["conditions"].get("charmed")
+    if _charm and _charm.get("source"):
+        pool = [c for c in pool if c["cid"] != _charm["source"]]
     if not pool:
         return None
     if selector == "nearest_frontline":
@@ -1139,9 +1167,11 @@ def _intent_action(registry, combat, actor, rule):
                                 rule.get("target", "nearest_frontline"))
         if target is None:
             return False
-        # melee gate: if the pick is unreachable, the engine lets the
+        # honor the named attack -- attack(<id>) -- defaulting to the first
+        # entry; melee gate: if the pick is unreachable, the engine lets the
         # attack call refuse (intent scripts are authored to avoid this)
-        attack(registry, combat, actor, target)
+        atk_id = do.split("(")[1].rstrip(")") if "(" in do else None
+        attack(registry, combat, actor, target, attack_id=atk_id)
         return True
     elif do.startswith("move"):
         dest = do.split("(")[1].rstrip(")")
@@ -1156,6 +1186,7 @@ def _intent_action(registry, combat, actor, rule):
         return True
     elif do == "flee":
         actor["dead"] = True
+        actor["fled"] = True            # not defeated: grants no XP (#5.9)
         log(combat, "%s flees!" % actor["name"])
         if not combatants_on(combat, "enemy"):
             _victory(registry, combat)

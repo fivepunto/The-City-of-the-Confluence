@@ -404,8 +404,15 @@ def options_for(registry, char, choice):
 
     if ctype == "fighting_style":
         owned = ch.fighting_styles(char)
+        # Styles with engine support in the current slice: the three wired into
+        # HOOK_LIBRARY (archery/dueling/great_weapon_fighting) plus 'defense'
+        # (read by character.ac). The rest are authored but not yet wired
+        # (#8.2 deferred) -- offer them disabled so a pick is never wasted.
+        wired_styles = ("archery", "dueling", "great_weapon_fighting", "defense")
         options = [_opt(s, rec["name"],
-                        player_text(registry, "fighting_styles", s, rec["effect"]))
+                        player_text(registry, "fighting_styles", s, rec["effect"]),
+                        disabled=s not in wired_styles,
+                        note="" if s in wired_styles else "not yet implemented")
                    for s, rec in registry["fighting_styles"].items()
                    if s not in owned]
         if choice.get("or_feature"):
@@ -458,14 +465,24 @@ def options_for(registry, char, choice):
     if ctype == "invocations":
         feat = registry["features"]["warlock_eldritch_invocations"]
         owned = ch.invocations(char)
+        # Invocations with engine support: the three combat hooks plus
+        # armor_of_shadows (read by character.ac). The rest are authored but
+        # not yet wired -- NOTE them (do NOT disable): known_total reaches 8
+        # while only 4 are wired, so the pick must stay satisfiable. The note
+        # warns the player so a swap-limited pick is spent knowingly.
+        wired_invocations = ("agonizing_blast", "repelling_lash",
+                             "grasping_lash", "armor_of_shadows")
         options = []
         for o in feat["options"]:
             locked = o.get("min_level", 1) > char["level"]
+            wired = o["id"] in wired_invocations
             note = ""
             if o.get("min_level"):
                 note = "level %d+" % o["min_level"]
             if o.get("requires"):
                 note = (note + ", " if note else "") + "needs %s" % o["requires"]
+            if not wired:
+                note = (note + ", " if note else "") + "not yet implemented"
             options.append(_opt(o["id"], o["name"],
                                 player_text(registry, "invocations", o["id"],
                                             o["effect"]),

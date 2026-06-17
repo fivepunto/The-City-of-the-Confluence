@@ -318,16 +318,6 @@ init python:
             return bcombat.flee(REG, combat)
         return None
 
-    def breach_combat_trace(msg):
-        # DEBUG TRACE for the "attack does nothing" repro (TEMPORARY -- remove
-        # after diagnosis). Appends to combat_trace.log in the project root.
-        try:
-            import os, time
-            with open(os.path.join(config.basedir, "combat_trace.log"), "a") as _f:
-                _f.write("[%.3f] %s\n" % (time.time(), msg))
-        except Exception:
-            pass
-
 
 # Float feed shown near the battlefield band; rebuilt every encounter.
 default breach_floats_view = []
@@ -348,7 +338,6 @@ default combat = None
 
 label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
     $ renpy.block_rollback()
-    $ breach_combat_trace("==== COMBAT START enemies=%r ====" % (enemy_ids,))
     $ breach_floats_view = []
     $ combat = bcombat.build_combat(REG, gs["party"], enemy_ids, flee_allowed)
     $ bcombat.begin(REG, combat, breach_ask_reaction)
@@ -360,7 +349,6 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
         $ renpy.block_rollback()
         $ bcombat.set_ask_fn(breach_ask_reaction)
         $ breach_actor = bcombat.current(combat)
-        $ breach_combat_trace("ITER round=%d turn=%d actor=%s side=%s kind=%s can_act=%s" % (combat["round"], combat["turn"], breach_actor["name"], breach_actor["side"], breach_actor["kind"], bcombat.can_act(breach_actor)))
         python:
             # Forward-progress watchdog: if the loop sees the same
             # (actor, turn, round) for combat_watchdog_limit iterations
@@ -386,7 +374,6 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
             # that just acted. Otherwise the shown screen reads combat["turn"]
             # after advance_turn() and can display the next actor as "acts..."
             # or briefly expose player controls during an autoplay pause.
-            $ breach_combat_trace("  ENEMY/BLOCKED resolve -> %s" % breach_actor["name"])
             python:
                 if breach_actor["side"] == "enemy":
                     bcombat.enemy_take_turn(REG, combat, breach_actor)
@@ -394,15 +381,10 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
                     bcombat.end_turn(REG, combat)
                 renpy.block_rollback()
                 breach_drain_floats(combat)
-            $ breach_combat_trace("  ENEMY/BLOCKED after resolve turn=%s round=%s over=%r" % (combat["turn"], combat["round"], combat["over"]))
             $ renpy.call_screen("combat_screen", combat=combat, wait_actor=breach_actor, wait_timeout=0.4)
-            $ breach_combat_trace("  ENEMY/BLOCKED wait returned")
         else:
-            $ breach_combat_trace("  PLAYER call_screen for %s (acted.action=%s)" % (breach_actor["name"], breach_actor["acted"].get("action")))
             $ breach_intent = renpy.call_screen("combat_screen", combat=combat)
-            $ breach_combat_trace("  PLAYER intent=%r" % (breach_intent,))
             $ breach_result = breach_combat_dispatch(combat, breach_actor, breach_intent)
-            $ breach_combat_trace("  PLAYER result=%r" % (breach_result,))
             $ renpy.block_rollback()
             $ breach_drain_floats(combat)
             if breach_result is not None and not breach_result.get("ok", True):
@@ -442,6 +424,12 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
 
 screen combat_screen(combat, wait_actor=None, wait_timeout=None):
     modal True
+    ## Block quicksave/quickload during the modal combat loop: the transient
+    ## `combat` dict must never be pickled into a save (same intent as the
+    ## Save-button guard in screens.rpy). The menu buttons are already gated;
+    ## this closes the F5/F9 keybind path.
+    key "quickSave" action NullAction()
+    key "quickLoad" action NullAction()
     add Solid(gui.bg_color)
 
     if wait_timeout is not None:
@@ -456,11 +444,16 @@ screen combat_screen(combat, wait_actor=None, wait_timeout=None):
     $ actor = wait_actor or bcombat.current(combat)
     $ p_waiting = wait_actor is not None
     $ p_pc = (actor["kind"] == "pc")
+    $ p_summon = (actor["kind"] == "summon")
     $ achar = actor["char"] if p_pc else None
-    $ p_playable = (not p_waiting) and p_pc and bcombat.can_act(actor) and combat["over"] is None
-    $ abilities = bhooks.available_abilities(REG, combat, actor) if p_playable else []
+    # A summon is a full combatant under player control (#9.12): it is playable
+    # on its own turn, but drives a reduced panel (attack / move / end) since it
+    # is char-less -- no abilities, spells, or items. Without this it would fall
+    # to the button-less wait panel and hang the loop (no intent can return).
+    $ p_playable = (not p_waiting) and (p_pc or p_summon) and bcombat.can_act(actor) and combat["over"] is None
+    $ abilities = bhooks.available_abilities(REG, combat, actor) if (p_playable and p_pc) else []
     $ bonus_abilities = [a for a in abilities if a["action"] == "bonus" and a["usable"]]
-    $ spells = bhooks.castable_spells(REG, combat, actor) if p_playable else []
+    $ spells = bhooks.castable_spells(REG, combat, actor) if (p_playable and p_pc) else []
     $ p_items = [(iid, gs["inventory"][iid]) for iid in sorted(gs["inventory"]) if iid in REG["consumables"]]
     $ p_chips = (mode in ("main", "spell_list", "ability_list", "item_list"))
     $ p_round = combat["round"]
@@ -567,7 +560,7 @@ screen combat_ribbon(combat, p_round, c_ribbon_h):
                                 background Solid(breach_placeholder_color(r_key))
                                 xysize (gui.combat_chip_size, gui.combat_chip_size)
                                 padding (0, 0)
-                                text breach_initials(rc["name"]):
+                                text breach_lit(breach_initials(rc["name"])):
                                     align (0.5, 0.5)
                                     size gui.size_micro
                                     color gui.breach_text_color
@@ -699,7 +692,7 @@ screen combat_floats():
         spacing gui.pad_xs
         $ fl_n = len(breach_floats_view)
         for fl_i, fl in enumerate(breach_floats_view):
-            $ fl_who = fl["who"]
+            $ fl_who = breach_lit(fl["who"])
             $ fl_text = fl["text"]
             $ fl_color = breach_float_color(fl["kind"])
             $ fl_alpha = max(0.3, 1.0 - 0.18 * (fl_n - 1 - fl_i))
@@ -733,6 +726,11 @@ screen combat_action_panel(combat, actor, achar, p_pc, p_playable, mode, pending
             ## state (who is acting + their telegraph), filling the panel --
             ## not a gaping void.
             use combat_wait_panel(actor)
+        elif actor["kind"] == "summon":
+            ## a player-controlled summon (#9.12): char-less, so a reduced seat
+            ## and an attack/move/end command set. Targeting reuses the same
+            ## battlefield tiles/plates a PC drives -- only the panel differs.
+            use combat_summon_panel(combat, actor, mode, pending, p_cancel, breach_tt)
         else:
             vbox:
                 spacing gui.pad_s
@@ -740,7 +738,7 @@ screen combat_action_panel(combat, actor, achar, p_pc, p_playable, mode, pending
 
                 ## The tooltip readout line: condition chips, greyed targets,
                 ## telegraphs, and list reasons all land here on hover.
-                text (breach_tt or " ") size gui.size_small color gui.accent_bright_color
+                text breach_lit(breach_tt or " ") size gui.size_small color gui.accent_bright_color
 
                 hbox:
                     spacing gui.pad_l
@@ -797,7 +795,7 @@ screen combat_action_panel(combat, actor, achar, p_pc, p_playable, mode, pending
                         vbox:
                             spacing gui.pad_s
                             yalign 0.5
-                            text breach_mode_caption(mode, pending) size gui.size_base color gui.breach_text_color
+                            text breach_lit(breach_mode_caption(mode, pending)) size gui.size_base color gui.breach_text_color
                             textbutton "Cancel Targeting":
                                 style "breach_frame_button"
                                 action p_cancel
@@ -828,6 +826,91 @@ screen combat_wait_panel(actor):
                     size gui.size_base
                     color gui.breach_telegraph_color
                     xalign 0.5
+
+
+## A player-controlled summon's action panel (#9.12). The summon is char-less,
+## so this mirrors the PC panel's STRUCTURE (tooltip readout + a lit seat + a
+## mode-switched command area) but with a placeholder portrait, an HP gauge,
+## and only Attack / Move / End Turn. Attack and Move set the same screen modes
+## a PC uses, so the battlefield tiles (breach_tile_target) and lane plates
+## (breach_plate_target) resolve the target and Return the intent unchanged.
+screen combat_summon_panel(combat, actor, mode, pending, p_cancel, breach_tt):
+    vbox:
+        spacing gui.pad_s
+        xfill True
+
+        text breach_lit(breach_tt or " ") size gui.size_small color gui.accent_bright_color
+
+        hbox:
+            spacing gui.pad_l
+            xfill True
+
+            ## the summon's lit seat: a placeholder portrait (colored rect +
+            ## initials) since it has no char art, matching the unit cards.
+            frame:
+                background Solid(gui.breach_lit_panel_color)
+                padding (gui.pad_s, gui.pad_s)
+                yalign 0.5
+                frame:
+                    xysize (128, 128)
+                    background Solid(breach_placeholder_color(actor["cid"]))
+                    padding (0, 0)
+                    text breach_lit(breach_initials(actor["name"])):
+                        align (0.5, 0.5)
+                        size gui.size_heading
+                        color gui.breach_text_color
+            vbox:
+                spacing gui.pad_xs
+                xsize gui.combat_actor_col_w
+                yalign 0.5
+                text breach_lit(actor["name"]) style "breach_display_text"
+                text "SUMMON" style "breach_label_text"
+                use breach_resource("HP", actor["hp"], actor["hp_max"])
+
+            if mode == "main":
+                use combat_summon_buttons(combat, actor)
+            else:
+                ## targeting in progress (attack / move): same caption + cancel
+                ## affordance the PC panel shows; the actual pick happens on the
+                ## battlefield tiles/plates.
+                vbox:
+                    spacing gui.pad_s
+                    yalign 0.5
+                    text breach_lit(breach_mode_caption(mode, pending)) size gui.size_base color gui.breach_text_color
+                    textbutton "Cancel Targeting":
+                        style "breach_frame_button"
+                        action p_cancel
+
+
+## The summon's command set: Attack (its statblock attack), Move (lanes), and
+## End Turn. Sensitivity mirrors the PC buttons (attack_action_available /
+## breach_move_check), so a spent Action leaves only End Turn -- the turn can
+## always be ended, which is what keeps the encounter loop from hanging.
+screen combat_summon_buttons(combat, actor):
+    $ sb_attack_ok = bcombat.attack_action_available(actor)
+    $ sb_move_ok, sb_move_reason = breach_move_check(actor)
+    vbox:
+        spacing gui.pad_s
+        yalign 0.5
+        hbox:
+            spacing gui.pad_s
+            textbutton "Attack":
+                style "breach_frame_button"
+                sensitive sb_attack_ok
+                tooltip ("Action spent." if not sb_attack_ok
+                         else "Spend the summon's Action to attack a valid enemy target.")
+                action SetScreenVariable("mode", "attack")
+            textbutton "Move":
+                style "breach_frame_button"
+                sensitive sb_move_ok
+                tooltip (sb_move_reason or "Change lanes. This spends the summon's Action and may provoke if it retreats from the Frontline.")
+                action SetScreenVariable("mode", "move")
+        hbox:
+            spacing gui.pad_s
+            textbutton "End Turn":
+                style "breach_frame_button"
+                tooltip "End the summon's turn and advance initiative."
+                action Return(("end",))
 
 
 ## Overlays: the full log and the reactions settings page (15.6). One dark
@@ -997,7 +1080,7 @@ screen combat_unit_card(combat, c, actor, chips_active):
                         xysize (64, 64)
                         background Solid(breach_placeholder_color(uc_key))
                         padding (0, 0)
-                        text breach_initials(uc_name):
+                        text breach_lit(breach_initials(uc_name)):
                             align (0.5, 0.5)
                             size gui.size_base
                             color gui.breach_text_color
@@ -1006,7 +1089,7 @@ screen combat_unit_card(combat, c, actor, chips_active):
                     xysize (64, 64)
                     background Solid(breach_placeholder_color(uc_key))
                     padding (0, 0)
-                    text breach_initials(uc_name):
+                    text breach_lit(breach_initials(uc_name)):
                         align (0.5, 0.5)
                         size gui.size_base
                         color gui.breach_text_color
@@ -1025,7 +1108,7 @@ screen combat_unit_card(combat, c, actor, chips_active):
         vbox:
             spacing gui.pad_xs
             yalign 0.5
-            text uc_name:
+            text breach_lit(uc_name):
                 size gui.size_small
                 color uc_name_color
                 xmaximum gui.combat_card_name_w
@@ -1044,17 +1127,17 @@ screen combat_unit_card(combat, c, actor, chips_active):
                             $ uc_cond_name = (uc_cond["name"] if uc_cond else cond_id.replace("_", " ").title())
                             $ uc_cond_tip = (breach_player_text(REG, "conditions", cond_id, uc_cond["effect"]) if uc_cond else "")
                             if chips_active:
-                                textbutton uc_cond_name:
+                                textbutton breach_lit(uc_cond_name):
                                     style "breach_chip"
                                     action NullAction()
                                     tooltip uc_cond_tip
                             else:
-                                text uc_cond_name size gui.size_micro color gui.breach_accent_color
+                                text breach_lit(uc_cond_name) size gui.size_micro color gui.breach_accent_color
                 ## the telegraph caret above carries the warning on hover; in
                 ## targeting modes hover is busy with target reasons, so spell
                 ## the warning out here too (GDD 5.8 / 15.6: hover reads it).
                 if uc_tele and not chips_active:
-                    text uc_tele size gui.size_micro color gui.breach_telegraph_color
+                    text breach_lit(uc_tele) size gui.size_micro color gui.breach_telegraph_color
 
 
 ## The main command rows: Attack · Spells · Abilities · Item · Move ·
@@ -1189,7 +1272,7 @@ screen combat_spell_list(spells, p_cancel):
                         hbox:
                             spacing gui.pad_m
                             xfill True
-                            text sp_entry["name"]:
+                            text breach_lit(sp_entry["name"]):
                                 size gui.size_base
                                 color (gui.breach_text_color if sp_usable else gui.muted_text_color)
                             text sp_tags size gui.size_small color gui.muted_text_color yalign 0.5
@@ -1227,7 +1310,7 @@ screen combat_ability_list(abilities, p_cancel):
                         hbox:
                             spacing gui.pad_m
                             xfill True
-                            text ab["name"]:
+                            text breach_lit(ab["name"]):
                                 size gui.size_base
                                 color (gui.breach_text_color if ab["usable"] else gui.muted_text_color)
                             text ab_tags size gui.size_small color gui.muted_text_color yalign 0.5
@@ -1253,7 +1336,7 @@ screen combat_ability_options(abilities, achar, pending, p_cancel):
         spacing gui.pad_s
         xfill True
         yalign 0.5
-        text breach_mode_caption("ability_option", pending) size gui.size_base color gui.breach_text_color
+        text breach_lit(breach_mode_caption("ability_option", pending)) size gui.size_base color gui.breach_text_color
         hbox:
             spacing gui.pad_s
             for ao_opt in ao_opts:
@@ -1262,7 +1345,7 @@ screen combat_ability_options(abilities, achar, pending, p_cancel):
                                 SetScreenVariable("mode", "ability_target")]
                                if ao_target
                                else Return(("ability", pending, None, ao_opt)))
-                textbutton ao_name:
+                textbutton breach_lit(ao_name):
                     style "breach_frame_button"
                     tooltip ao_tip
                     action ao_action
@@ -1364,12 +1447,12 @@ screen reaction_settings(close_action):
                         spacing gui.pad_s
                         xfill True
                         for member in gs["party"]:
-                            text member["name"] size gui.size_base color gui.breach_accent_color
+                            text breach_lit(member["name"]) size gui.size_base color gui.breach_accent_color
                             for r_aid, r_name, r_default in breach_reaction_abilities(member):
                                 $ r_cur = member["reaction_preferences"].get(r_aid, r_default)
                                 hbox:
                                     spacing gui.pad_s
-                                    text r_name size gui.size_small xsize gui.stat_label_w yalign 0.5
+                                    text breach_lit(r_name) size gui.size_small xsize gui.stat_label_w yalign 0.5
                                     for r_mode in ("ask", "always", "never"):
                                         textbutton r_mode.capitalize():
                                             style "breach_chip"
@@ -1389,7 +1472,7 @@ screen combat_victory(combat, summary):
     add Solid(gui.bg_color)
     $ v_xp = summary.get("xp", 0)
     $ v_mc = gs["party"][0]
-    $ v_name = v_mc["name"]
+    $ v_name = breach_lit(v_mc["name"])
     $ v_cur = v_mc["xp"]
     $ v_badge = bch.can_level_up(REG, v_mc)
     frame:

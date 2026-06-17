@@ -231,7 +231,9 @@ def eff_rage_damage(registry, combat, owner, ctx):
 
 
 def eff_save_advantage(registry, combat, owner, ctx):
-    ctx["advantage"] = 1
+    # contribute to the adv set -- saving_throw aggregates adv/dis with #2.2
+    # cancellation -- rather than overwriting the scalar advantage outright.
+    ctx.setdefault("adv", []).append("save_advantage")
 
 
 def eff_archery(registry, combat, owner, ctx):

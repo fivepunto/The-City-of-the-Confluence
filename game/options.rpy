@@ -12,7 +12,7 @@
 ##
 ## The _() surrounding the string marks it as eligible for translation.
 
-define config.name = _("First Prototype")
+define config.name = _("The City of the Confluence")
 
 
 ## Determines if the title given above is shown on the main menu screen. Set
@@ -23,13 +23,14 @@ define gui.show_name = True
 
 ## The version of the game.
 
-define config.version = "1.0"
+define config.version = "0.1"
 
 
 ## Text that is placed on the game's about screen. Place the text between the
 ## triple-quotes, and leave a blank line between paragraphs.
 
 define gui.about = _p("""
+The City of the Confluence — a visual-novel / RPG hybrid adapting the D&D 5.2 SRD.
 """)
 
 
@@ -37,7 +38,7 @@ define gui.about = _p("""
 ## distribution. This must be ASCII-only, and must not contain spaces, colons,
 ## or semicolons.
 
-define build.name = "FirstPrototype"
+define build.name = "CityOfTheConfluence"
 
 
 ## Sounds and music ############################################################
@@ -94,6 +95,12 @@ define config.end_game_transition = None
 
 ## A variable to set the transition used when the game starts does not exist.
 ## Instead, use a with statement after showing the initial scene.
+
+## A long, dramatic fade for the game-start moment (used by `label start`). It
+## is deliberately slower than the stock `fade` (Fade(.5, 0, .5)) so the open
+## feels epic; `fade` stays free for ordinary transitions. Tuple is
+## (out, hold-on-black, in) in seconds.
+define game_start_fade = Fade(1.0, 0.5, 1.5)
 
 
 ## Window management ###########################################################

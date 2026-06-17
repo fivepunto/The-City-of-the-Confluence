@@ -14,7 +14,6 @@ buy() and sell() docstrings note that callers must block_rollback() after
 the purchase/sale resolves. Core never imports or mentions renpy.
 """
 
-from core import inventory as inv
 from core import state as st
 
 
@@ -134,11 +133,18 @@ def shop_listing(registry, state, shop_id):
     rows = []
     for entry in registry["shops"][shop_id]["stock"]:
         item_id = entry["item_id"]
+        # tolerate a mis-authored stock entry with no buy price (relics and
+        # key items carry no `price`): skip it rather than let ValueError
+        # escape and break the whole shop render.
+        try:
+            price = buy_price(registry, item_id)
+        except ValueError:
+            continue
         remaining = stock_remaining(registry, state, shop_id, item_id)
         rows.append({
             "item_id": item_id,
             "record": _record(registry, item_id),
-            "price": buy_price(registry, item_id),
+            "price": price,
             "remaining": remaining,
             "sold_out": remaining == 0,
         })

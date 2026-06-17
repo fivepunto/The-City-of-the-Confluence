@@ -58,8 +58,9 @@ init python:
 
     def debug_validate_content():
         """Run the content validator (registry.validate + the spell-slice
-        matrix vs GDD 9.2 + the DISPLAY jargon scan) and report to the
-        status line. The voice scan is advisory -- review flagged blurbs."""
+        matrix vs GDD 9.2 + a hard scan for unresolved authoring placeholder
+        tokens in DISPLAY strings) and report to the status line. A flagged
+        placeholder is counted as a problem, not advisory."""
         from core import registry as _reg
         problems = _reg.content_problems(store.REG)
         if problems:
@@ -76,18 +77,21 @@ init python:
             store.gs["party"][0]["xp"] += amount
             store.debug_roll_log = "+%d XP (MC at %d)" % (
                 amount, store.gs["party"][0]["xp"])
+            renpy.block_rollback()             # committed gs mutation (#16.1)
 
     def debug_give_gold(amount):
         if store.gs is not None:
             store.gs["gold"] += amount
             store.debug_roll_log = "+%d gold (%d total)" % (
                 amount, store.gs["gold"])
+            renpy.block_rollback()             # committed gs mutation (#16.1)
 
     def debug_give_item(item_id):
         if store.gs is not None:
             store.gs["inventory"][item_id] = \
                 store.gs["inventory"].get(item_id, 0) + 1
             store.debug_roll_log = "gave 1 %s" % item_id
+            renpy.block_rollback()             # committed gs mutation (#16.1)
 
     DEBUG_GIVEABLE_KINDS = ("weapons", "armor", "consumables",
                             "relics", "magic_items", "key_items")
@@ -105,21 +109,25 @@ init python:
             if cur in phases else phases[0]
         store.bstate.set_day_phase(store.gs, nxt)
         store.debug_roll_log = "day phase: %s" % nxt
+        renpy.block_rollback()                 # committed gs mutation (#16.1)
 
     def debug_set_supplies(n):
         if store.gs is not None:
             store.gs["supplies"] = n
             store.debug_roll_log = "supplies = %d" % n
+            renpy.block_rollback()             # committed gs mutation (#16.1)
 
     def debug_set_breathers(n):
         if store.gs is not None:
             store.gs["breathers"] = n
             store.debug_roll_log = "breathers used = %d" % n
+            renpy.block_rollback()             # committed gs mutation (#16.1)
 
     def debug_give_upgrade(uid):
         if store.gs is not None and uid not in store.gs["camp_upgrades"]:
             store.gs["camp_upgrades"].append(uid)
             store.debug_roll_log = "gave camp upgrade %s" % uid
+            renpy.block_rollback()             # committed gs mutation (#16.1)
 
     def debug_prep_camp():
         """Set the Breach region + ensure a Supply so a debug wilds-Camp can
@@ -234,6 +242,7 @@ init python:
                                            store.gs["inventory"])
         store.bstate.add_to_party(store.gs, char)
         store.debug_roll_log = "added %s" % char["name"]
+        renpy.block_rollback()                 # committed party mutation (#16.1)
 
 
 default debug_kind = "classes"

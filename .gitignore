@@ -19,7 +19,6 @@
 /log.txt
 /save_dump.txt
 /traceback.txt
-/combat_trace.log
 /*.log
 
 # Launcher-generated files.

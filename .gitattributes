@@ -1,0 +1,21 @@
+# Line-ending normalization. The committed sources are LF; this prevents the
+# CRLF churn that appears when the project is checked out or edited on Windows
+# (or on a Windows-mounted path under WSL). `text=auto` lets Git classify each
+# file; `eol=lf` pins text files to LF in the repo and on checkout. Ren'Py
+# reads LF fine on every platform.
+* text=auto eol=lf
+
+# Binary assets: never normalized, never diffed as text.
+*.png   binary
+*.jpg   binary
+*.jpeg  binary
+*.webp  binary
+*.gif   binary
+*.ico   binary
+*.ogg   binary
+*.opus  binary
+*.mp3   binary
+*.wav   binary
+*.ttf   binary
+*.otf   binary
+*.rpa   binary

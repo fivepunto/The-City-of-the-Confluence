@@ -11,7 +11,9 @@ def ability_modifier(score):
 
 
 def proficiency_bonus(level):
-    """+2 at 1-4, +3 at 5-8, +4 at 9-12 (GDD #2.5, L85-86)."""
+    """+2 at 1-4, +3 at 5-8, +4 at 9-12 (GDD #2.5, L85-86). Single source for
+    the proficiency curve (the unused core['proficiency_by_level'] registry
+    table was removed)."""
     if not 1 <= level <= 12:
         raise ValueError("level out of range 1-12: %r" % (level,))
     if level <= 4:
@@ -42,15 +44,6 @@ def spell_save_dc(prof, casting_mod):
 def spell_attack_bonus(prof, casting_mod):
     """Proficiency bonus + casting-ability modifier (GDD #2.4, L75)."""
     return prof + casting_mod
-
-
-def feature_save_dc(prof, governing_mod):
-    """8 + proficiency bonus + the feature's governing ability modifier --
-    the general DC for any feature-imposed save (Channel Divinity, Aspect,
-    Monk Open Hand/Stunning Strike...). Same formula as the spell save DC;
-    owner adjudication, P2 (GDD #2.4). An alias so call sites read by intent.
-    """
-    return 8 + prof + governing_mod
 
 
 def skill_total(ability_mod, prof, proficient=False, expertise=False,
@@ -124,17 +117,8 @@ def point_buy_valid(scores, costs, budget):
         return False
 
 
-def level_for_xp(xp, thresholds):
-    """Highest level whose threshold is <= xp. thresholds[0] is level 1's 0
-    (GDD #6, L370-372; values flagged in GAPS.md G-001)."""
-    level = 1
-    for i, need in enumerate(thresholds):
-        if xp >= need:
-            level = i + 1
-    return min(level, 12)
-
-
 def recovery_die_heal(hit_die_roll, con_mod):
-    """Each Recovery Die heals the class hit die + Con modifier
-    (GDD #12.1, L1308-1310)."""
-    return hit_die_roll + con_mod
+    """Each Recovery Die heals the class hit die + Con modifier, floored at 0
+    so a low roll with a negative Con mod never heals negative (GDD #12.1,
+    L1308-1310; mirrors the max() guard in recompute_hp_max)."""
+    return max(0, hit_die_roll + con_mod)

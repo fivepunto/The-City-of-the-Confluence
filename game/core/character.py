@@ -158,8 +158,11 @@ def ac(registry, char):
     if unarmored:
         second = sum(ability_mod(char, a) for a in unarmored["add"]
                      if a != "dex")
-        return rules.unarmored_ac(dex, second, base=unarmored["base"],
-                                  shield=shield)
+        # honor the class's shield_allowed flag: a Monk (#7.11) gains no shield
+        # bonus to Unarmored Defense; a Barbarian (#7.5) does.
+        return rules.unarmored_ac(
+            dex, second, base=unarmored["base"],
+            shield=shield and unarmored.get("shield_allowed", True))
     if has_feature(char, "sorcerer_draconic_resilience"):
         return rules.unarmored_ac(dex, ability_mod(char, "cha"))
     if "armor_of_shadows" in invocations(char):
@@ -292,6 +295,12 @@ def always_prepared(registry, char):
                 out.append(grant["spell"])
     for sid in char["class_picks"].get("magical_discoveries", []):
         out.append(sid)
+    # Magic Initiate's tier-1 spell (#8.1): castable with the character's own
+    # slots once they can reach tier 1. The once-per-Camp free cast (for non-
+    # casters) is deferred with the P4 Camp resource cycle.
+    mi = char["class_picks"].get("magic_initiate")
+    if mi and mi.get("spell") and max_tier >= 1:
+        out.append(mi["spell"])
     # dedup at the single chokepoint, order preserved: two always-prepared
     # sources can grant the same spell, and the sheet must not list it twice
     seen = []
@@ -358,9 +367,13 @@ def resource_row(registry, char):
         row["lay_on_hands_pool"] = {
             "current": res.get("lay_on_hands_pool", pool), "max": pool,
             "label": "Lay on Hands pool"}
+    # max tracks current when a Camp upgrade (Fieldwright's Tent, #14.3) has
+    # granted over-cap Recovery Dice this Camp, so the gauge stays consistent
+    # (current never exceeds max) instead of misreporting e.g. 5/4.
+    _rec_cur = res.get("recovery_dice", char["level"])
     row["recovery_dice"] = {
-        "current": res.get("recovery_dice", char["level"]),
-        "max": char["level"], "label": "Recovery Dice"}
+        "current": _rec_cur,
+        "max": max(char["level"], _rec_cur), "label": "Recovery Dice"}
     row["heroic_inspiration"] = {
         "current": res.get("heroic_inspiration", 1), "max": 1,
         "label": "Heroic Inspiration"}

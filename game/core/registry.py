@@ -96,6 +96,23 @@ def validate(registry):
         if sp.get("save") and sp["save"]["ability"] not in ABILITY_IDS:
             problems.append("%s: bad save ability" % where)
 
+    # required payload keys per level-up choice type. A malformed choice record
+    # otherwise only blows up in ui_options.options_for / character.apply_choice
+    # (KeyError) when that exact level is reached in play. Keys are those present
+    # across every shipped choice; feature_option's target id is resolved below.
+    required_choice_keys = {
+        "skills": ("choose", "from"),
+        "expertise": ("choose",),
+        "weapon_mastery": ("known_total",),
+        "cantrips": ("known_total", "from"),
+        "invocations": ("known_total",),
+        "metamagic": ("known_total",),
+        "aspects": ("known_total",),
+        "mystic_arcanum": ("choose", "tier"),
+        "spellbook_init": ("choose", "tier"),
+        "spellbook_add": ("count",),
+        "spells_always_prepared": ("choose", "from"),
+    }
     for cid, cls in classes.items():
         where = "classes[%s]" % cid
         check_src(cls, where)
@@ -109,6 +126,16 @@ def validate(registry):
             for choice in entry["choices"]:
                 if "type" not in choice:
                     problems.append("%s L%d: choice missing type" % (where, lvl))
+                    continue
+                ctype = choice["type"]
+                for key in required_choice_keys.get(ctype, ()):
+                    if key not in choice:
+                        problems.append("%s L%d: %s choice missing %r"
+                                        % (where, lvl, ctype, key))
+                if ctype == "feature_option" and \
+                        choice.get("feature") not in features:
+                    problems.append("%s L%d: feature_option unknown feature %r"
+                                    % (where, lvl, choice.get("feature")))
 
     for fid, feat in features.items():
         check_src(feat, "features[%s]" % fid)
@@ -153,7 +180,10 @@ def content_problems(registry):
       (b) the spell-slice matrix re-derived from spell tags vs the GDD #9.2
           literal counts (a literal-number check per GDD 16.5, never a data
           block), and
-      (c) unresolved placeholder text in DISPLAY strings."""
+      (c) unresolved authoring placeholders in DISPLAY strings ONLY. Intended
+          content gaps tracked elsewhere (e.g. the G-039 bracketed quest
+          objective placeholders in registry["quests"]) are owner-authored
+          later and are deliberately NOT scanned here."""
     problems = ["structure: " + p for p in validate(registry)]
 
     # (b) the GDD #9.2 access matrix (docs/gdd.md L965-974); index 0 = cantrips,
