@@ -351,7 +351,8 @@ def _start_turn(registry, combat):
     # (attack_action_taken gates the Martial Arts Bonus-Action unarmed
     # strike, #7.11 L819)
     for flag in ("free_moves_used", "reckless_open", "patient_defense",
-                 "surge_extra", "attack_action_taken"):
+                 "surge_extra", "attack_action_taken",
+                 "attack_action_remaining"):
         actor["flags"].pop(flag, None)
     tick_source_turn_start(registry, combat, actor)
     ctx = fire(registry, combat, "turn_start", {"actor": actor["cid"]})
@@ -1171,11 +1172,30 @@ def _intent_action(registry, combat, actor, rule):
 # ---------------------------------------------------------------------------
 # player-facing action wrappers: the turn economy (#5.2 L224-232)
 
+def attacks_per_attack_action(actor):
+    """Number of attacks made when this combatant takes the Attack action."""
+    if actor["kind"] != "pc":
+        return 1
+    char = actor["char"]
+    if ch.has_feature(char, "fighter_two_extra_attacks"):
+        return 3
+    if ch.has_feature(char, "extra_attack"):
+        return 2
+    return 1
+
+
+def attack_action_available(actor):
+    """True when the Attack button can start or continue an Attack action."""
+    return (not actor["acted"]["action"] or
+            actor["flags"].get("attack_action_remaining", 0) > 0)
+
+
 def player_attack(registry, combat, actor, target, reckless=False):
     """The Attack action. Reckless (#7.5 L567-569) is declared with the
     attack: advantage now, attacks against you have advantage until your
     next turn."""
-    if actor["acted"]["action"]:
+    remaining = actor["flags"].get("attack_action_remaining", 0)
+    if actor["acted"]["action"] and remaining <= 0:
         return {"ok": False, "reason": "Action spent."}
     if reckless:
         if not (actor["kind"] == "pc" and
@@ -1189,9 +1209,18 @@ def player_attack(registry, combat, actor, target, reckless=False):
     if reckless and actor["kind"] == "pc":
         pass  # reckless advantage rides via the open flag + adv below
     actor["acted"]["action"] = True
+    if remaining > 0:
+        actor["flags"]["attack_action_remaining"] = remaining - 1
+    else:
+        actor["flags"]["attack_action_remaining"] = \
+            attacks_per_attack_action(actor) - 1
+    if actor["flags"]["attack_action_remaining"] <= 0:
+        actor["flags"].pop("attack_action_remaining", None)
     # gates the Martial Arts Bonus-Action unarmed strike ("after taking
     # the Attack action", #7.11 L819); cleared at the next turn start
     actor["flags"]["attack_action_taken"] = True
+    result["attacks_remaining"] = actor["flags"].get(
+        "attack_action_remaining", 0)
     return result
 
 

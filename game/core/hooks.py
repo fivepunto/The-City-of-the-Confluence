@@ -702,6 +702,8 @@ def _run_second_wind(registry, combat, actor, target, option=None):
 def _check_action_spent(registry, combat, actor):
     if not actor["acted"]["action"]:
         return False, "Use your Action first - the Surge refreshes it."
+    if actor["flags"].get("attack_action_remaining", 0) > 0:
+        return False, "Finish your Attack action first."
     return True, None
 
 

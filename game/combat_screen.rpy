@@ -1064,6 +1064,7 @@ screen combat_unit_card(combat, c, actor, chips_active):
 
 screen combat_main_buttons(combat, actor, achar, spells, abilities, bonus_abilities, p_items, reckless):
     $ mb_action_free = not actor["acted"]["action"]
+    $ mb_attack_ok = bcombat.attack_action_available(actor)
     $ mb_move_ok, mb_move_reason = breach_move_check(actor)
     $ mb_reckless_owner = bch.has_feature(achar, "barbarian_reckless_attack")
     vbox:
@@ -1075,8 +1076,8 @@ screen combat_main_buttons(combat, actor, achar, spells, abilities, bonus_abilit
             spacing gui.pad_s
             textbutton "Attack":
                 style "breach_frame_button"
-                sensitive mb_action_free
-                tooltip ("Action spent." if not mb_action_free else None)
+                sensitive mb_attack_ok
+                tooltip ("Action spent." if not mb_attack_ok else None)
                 action SetScreenVariable("mode", "attack")
             if mb_reckless_owner:
                 ## the reckless toggle rides the next Attack (GDD 7.5)
