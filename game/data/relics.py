@@ -99,4 +99,13 @@ KEY_ITEMS = {
         "sellable": False,
         "src": "§15.4 L1553",
     },
+    # The Lamplighter Guild's first-rank token, granted by Imara at the close of
+    # the prologue (#17.2). Name is owner prose (the "Bronze" beginner rank,
+    # World Bible §4); confirm the canonical src citation.
+    "bronze_medallion": {
+        "id": "bronze_medallion",
+        "name": "Bronze Medallion",
+        "sellable": False,
+        "src": "§17.2 L1734-1736",
+    },
 }
