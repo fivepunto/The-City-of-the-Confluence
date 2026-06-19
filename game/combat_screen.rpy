@@ -424,12 +424,15 @@ label combat_encounter(enemy_ids, flee_allowed=False, loot=None):
 
 screen combat_screen(combat, wait_actor=None, wait_timeout=None):
     modal True
-    ## Block quicksave/quickload during the modal combat loop: the transient
-    ## `combat` dict must never be pickled into a save (same intent as the
-    ## Save-button guard in screens.rpy). The menu buttons are already gated;
-    ## this closes the F5/F9 keybind path.
-    key "quickSave" action NullAction()
-    key "quickLoad" action NullAction()
+    ## Anti-save-scum: a mid-combat save must never pickle the transient
+    ## `combat` dict. That is enforced by blocking rollback imperatively
+    ## (combat_encounter) and by gating the Save / Q.Save buttons on
+    ## `combat is None` (screens.rpy). Ren'Py 8.5.3 binds NO quicksave/quickload
+    ## keys by default, so there is no F5/F9 key path to neutralize here. (The
+    ## former `key "quickSave"/"quickLoad"` guards referenced nonexistent keymap
+    ## names and raised "Invalid key specifier" on the first combat input event;
+    ## if a quicksave keybind is ever added, gate it the same way the buttons
+    ## are -- do not bind a bare keymap name that the engine does not define.)
     add Solid(gui.bg_color)
 
     if wait_timeout is not None:
