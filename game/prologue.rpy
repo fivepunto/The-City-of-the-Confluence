@@ -12,9 +12,9 @@
 # (dialogue mode, #13.1) until Free Mode begins; from there city_free_mode owns
 # HUD visibility, so the prologue never forces it on.
 #
-# Speakers follow the established codebase convention -- string-literal speaker
-# names, no Character() objects (the project defines none). Relpak = the trader;
-# Imara = the guild receptionist; the gate guard is generic per the owner draft.
+# Speakers are the Character() objects defined in characters.rpy (relpak = the
+# trader; imara = the guild receptionist; guard = the generic gate guard), so a
+# name is authored once there rather than repeated as a string literal here.
 #
 # GAPS surfaced rather than invented (CLAUDE.md iron rules):
 #   - Art: no caravan-road / city-gate / guildhall backgrounds and no NPC or
@@ -82,32 +82,32 @@ label prologue:
     #    opening line is quoted verbatim in the GDD; the rest is owner prose.
     #    GAP(art): bg "caravan_road" + Relpak sprite.
     scene black
-    "Relpak" "Hey, you. You're finally awake."
-    "Relpak" "Slept like the dead since the last waystation. I was starting to think I'd hired a corpse for company."
+    relpak "Hey, you. You're finally awake."
+    relpak "Slept like the dead since the last waystation. I was starting to think I'd hired a corpse for company."
     "The cart rocks under you. Open country rolls past — and ahead, low on the horizon, smoke and rooftops."
-    "Relpak" "That there's Veycross. Couple hours out, give or take a wheel."
-    "Relpak" "So. What's a person like you headed all that way for?"
+    relpak "That there's Veycross. Couple hours out, give or take a wheel."
+    relpak "So. What's a person like you headed all that way for?"
 
     # Reactive options -- they never assume who the MC is (#3 writing rule).
     menu:
         "\"Coin. Same as everyone.\"":
-            "Relpak" "Honest answer. Most folk dress it up prettier and mean the exact same thing."
+            relpak "Honest answer. Most folk dress it up prettier and mean the exact same thing."
         "\"I'm going to enter the Breach.\"":
-            "Relpak" "The Breach, eh? Brave. Or broke. Usually both, in my experience."
+            relpak "The Breach, eh? Brave. Or broke. Usually both, in my experience."
         "\"Haven't decided yet.\"":
-            "Relpak" "Then you'll fit right in. Half that city's still making up its mind about something."
+            relpak "Then you'll fit right in. Half that city's still making up its mind about something."
         "\"That's my business.\"":
-            "Relpak" "Fair enough. Quiet ones make the best passengers anyhow."
+            relpak "Fair enough. Quiet ones make the best passengers anyhow."
 
     # 6. The jinx: a wolf comes out of the brush and the bargain (protection for
     #    passage) comes due (#17.2). GAP(audio): the wolf's growl cue belongs
     #    here -- no SFX assets exist, so it is omitted, not faked. GAP(art):
     #    wolf sprite.
-    "Relpak" "Well, whatever it is — we'll get you to the gate in one piece. Road's been kind the whole way down. Not so much as a—"
-    "Relpak" "...Ah. Hm."
+    relpak "Well, whatever it is — we'll get you to the gate in one piece. Road's been kind the whole way down. Not so much as a—"
+    relpak "...Ah. Hm."
     "Something low and grey has come out of the brush. It is watching you the way hungry things watch."
-    "Relpak" "Right. Here's where you earn the ride, friend. Passage to Veycross — protection on the road. That was the deal."
-    "Relpak" "It's just the one. A [mc_class] of your caliber can manage just the one."
+    relpak "Right. Here's where you earn the ride, friend. Passage to Veycross — protection on the road. That was the deal."
+    relpak "It's just the one. A [mc_class] of your caliber can manage just the one."
 
     # 7. Tutorial combat: the MC alone vs one Young Wolf (#11.2 / #17.2.7).
     #    Solo (the party is just the MC at this point); flee is disabled
@@ -120,48 +120,48 @@ label prologue:
 
     # 8a. The aftermath, still on the road. GAP(art): bg "caravan_road".
     scene black with fade
-    "Relpak" "Ha! Hah. Look at you."
-    "Relpak" "Bit of a rough start, but you got the job done. Not everyone can say that. You earned your keep, that's for sure."
+    relpak "Ha! Hah. Look at you."
+    relpak "Bit of a rough start, but you got the job done. Not everyone can say that. You earned your keep, that's for sure."
 
     # 8b. The city gate; the MC and Relpak part ways (#17.2). GAP(art): bg
     #     "veycross_gate_exterior".
     scene black with fade
     "The walls of Veycross rise ahead of you, close now — taller than anything you passed on the road, and louder."
-    "Relpak" "This is me, then. I've cargo to move and a buyer who hates waiting."
-    "Relpak" "You want the Lamplighters, you head for the middle of the city, huge Guild Headquarters, can't miss it."
-    "Relpak" "Watch yourself in there."
+    relpak "This is me, then. I've cargo to move and a buyer who hates waiting."
+    relpak "You want the Lamplighters, you head for the middle of the city, huge Guild Headquarters, can't miss it."
+    relpak "Watch yourself in there."
     "And then the crowd takes him, and you are one more stranger at the gate."
 
     # 9. The gate guard. Whatever the answer, he sends the MC to the Guildhall
     #    (#17.2).
-    "Gate Guard" "Hold up. New face. State your business in Veycross."
+    guard "Hold up. New face. State your business in Veycross."
     menu:
         "\"I'm here to register with the Lamplighters.\"":
-            "Gate Guard" "Another one. Good luck to you."
+            guard "Another one. Good luck to you."
         "\"Work. Whatever pays.\"":
-            "Gate Guard" "Then you'll want the Guild like everyone else who says that. Coin in this city comes up out of the Breach."
+            guard "Then you'll want the Guild like everyone else who says that. Coin in this city comes up out of the Breach."
         "\"Just passing through.\"":
-            "Gate Guard" "Nobody just passes through Veycross. There's only one road out and it goes the wrong direction. Try the Guild."
-    "Gate Guard" "Lamplighter Guildhall. They'll sort you a medallion. Move along."
+            guard "Nobody just passes through Veycross. There's only one road out and it goes the wrong direction. Try the Guild."
+    guard "Lamplighter Guildhall. They'll sort you a medallion. Move along."
 
     # 10. The Guildhall: Imara registers the MC into the Lamplighter Guild
     #     (#17.2). GAP(art): bg "guildhall_interior" + Imara sprite.
     scene black with fade
-    "Imara" "Welcome to the Lamplighter Guild. If you're here to gawk, the door's behind you. If you're here to register, the line forms at me."
+    imara "Welcome to the Lamplighter Guild. If you're here to gawk, the door's behind you. If you're here to register, the line forms at me."
 
     # The "just looking" option loops until the MC chooses to register.
     $ registered = False
     while not registered:
         menu:
             "\"Registering. What do I do?\"":
-                "Imara" "You tell me your name, I write it down, you get your medallion. That's the whole ceremony."
+                imara "You tell me your name, I write it down, you get your medallion. That's the whole ceremony."
                 $ registered = True
             "\"Just looking around.\"":
-                "Imara" "Well, you can look around all you want, but if you're not here to register, you can look around somewhere else. Line's over there."
+                imara "Well, you can look around all you want, but if you're not here to register, you can look around somewhere else. Line's over there."
 
-    "Imara" "Name?"
+    imara "Name?"
     "You give it."
-    "Imara" "[mc_name]. Right."
+    imara "[mc_name]. Right."
 
     # Grant the Bronze Medallion (first-rank guild token, #15.4 key item) and
     # set the membership flag, then commit against rollback (#16.1).
@@ -169,11 +169,11 @@ label prologue:
     $ gs["flags"]["lamplighter_member"] = True
     $ renpy.block_rollback()
 
-    "Imara" "Bronze. First rank. Welcome to the Guild."
-    "Imara" "Now before you head straight into the Breach, you should know a few things."
-    "Imara" "See that notice board over there? That's where the Guild, citizens, and other parties post their jobs. You might want to check it out — it's how most people get work around here."
-    "Imara" "Second, explore the city. If you head straight into the Breach without any companions or gear, you're gonna have a bad time. The city is your best bet for finding both."
-    "Imara" "Good luck out there."
+    imara "Bronze. First rank. Welcome to the Guild."
+    imara "Now before you head straight into the Breach, you should know a few things."
+    imara "See that notice board over there? That's where the Guild, citizens, and other parties post their jobs. You might want to check it out — it's how most people get work around here."
+    imara "Second, explore the city. If you head straight into the Breach without any companions or gear, you're gonna have a bad time. The city is your best bet for finding both."
+    imara "Good luck out there."
 
     # 11. Free Mode begins. The interface arriving IS the signal (#13.1):
     #     city_free_mode owns HUD visibility, so the prologue does not force it.

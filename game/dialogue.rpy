@@ -13,9 +13,10 @@
 # (15.7 L1604-1606).
 #
 # All dialogue spoken text is OWNER content; this file ships the literal
-# placeholder "[[TO BE WRITTEN BY THE PROJECT OWNER]" for every line and a
-# bracketed placeholder for every speaker. The labels only demonstrate the
-# system wiring (CLAUDE.md P5: never write story content).
+# placeholder "[[TO BE WRITTEN BY THE PROJECT OWNER]" for every line. Speakers
+# are the Character() objects in characters.rpy -- the named cast plus the
+# bracketed-placeholder townsperson / merchant / questgiver. The labels only
+# demonstrate the system wiring (CLAUDE.md P5: never write story content).
 #
 # Rollback discipline (GDD 16.1): the .rpy layer calls renpy.block_rollback()
 # immediately after every check resolution and quest start -- core never does.
@@ -47,6 +48,29 @@ init python:
         renpy.block_rollback()                       # commit the roll (16.1)
         breach_toast(breach_skill_result_line(res))  # non-blocking notice
         return res
+
+    # --- Conversational dialogue-hub helpers (the Imara pattern, GDD 15.7) ---
+    #
+    # A dialogue hub is a native `menu:` loop where each question is gated by a
+    # plain `if`: a ONE-SHOT question reads `if not breach_asked(npc, qid)` so it
+    # vanishes once asked, and a CONDITIONAL question adds its own predicate so
+    # it only appears when the condition holds. The "asked" set lives in the
+    # save -- gs["flags"], flat namespaced keys "dlg:<npc>:<qid>" -- so it
+    # survives save/load and never collides with story flags. Marking a question
+    # asked is a committed mutation, so we block rollback immediately after
+    # (CLAUDE.md / 16.1); that is also what makes "asked -> gone" impossible to
+    # undo by rolling back.
+
+    def breach_asked(npc, qid):
+        """True if question `qid` has already been asked of `npc`."""
+        if gs is None:
+            return False
+        return bool(gs.get("flags", {}).get("dlg:%s:%s" % (npc, qid)))
+
+    def breach_mark_asked(npc, qid):
+        """Record that `qid` was asked of `npc`, and commit it past rollback."""
+        gs["flags"]["dlg:%s:%s" % (npc, qid)] = True
+        renpy.block_rollback()                       # commit; "asked -> gone"
 
 
 ## The skill-tagged choice menu (GDD 15.7 L1597-1606).
@@ -147,7 +171,7 @@ screen skill_menu(actor, options):
 
 label dlg_townsperson:
     # A bracketed placeholder speaker; the line is owner content.
-    "[[Townsperson]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+    townsperson "[[TO BE WRITTEN BY THE PROJECT OWNER]"
 
     # One plain line, one skill (Presence) line, one HIDDEN class line.
     # 12 is a single conservative authored literal (GAPS G-041); it is NOT
@@ -164,15 +188,15 @@ label dlg_townsperson:
     if _return == "persuade":
         $ res = breach_do_check("presence", 12)   # 12: conservative authored literal (G-041)
         if res["success"]:
-            "[[Townsperson]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            townsperson "[[TO BE WRITTEN BY THE PROJECT OWNER]"
         else:
-            "[[Townsperson]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            townsperson "[[TO BE WRITTEN BY THE PROJECT OWNER]"
     return
 
 
 label dlg_merchant:
     # A merchant both talks and trades.
-    "[[Merchant]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+    merchant "[[TO BE WRITTEN BY THE PROJECT OWNER]"
 
     call screen skill_menu(gs["party"][0], [
         {"id": "browse", "label": "Look over the wares.", "skill": None},
@@ -187,14 +211,14 @@ label dlg_merchant:
     elif _return == "haggle":
         $ res = breach_do_check("guile", 12)      # 12: conservative authored literal (G-041)
         if res["success"]:
-            "[[Merchant]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            merchant "[[TO BE WRITTEN BY THE PROJECT OWNER]"
         else:
-            "[[Merchant]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            merchant "[[TO BE WRITTEN BY THE PROJECT OWNER]"
     return
 
 
 label dlg_questgiver:
-    "[[Quest Giver]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+    questgiver "[[TO BE WRITTEN BY THE PROJECT OWNER]"
 
     call screen skill_menu(gs["party"][0], [
         {"id": "accept", "label": "Take up the task.", "skill": None},
@@ -216,11 +240,64 @@ label dlg_questgiver:
                     breach_toast("Quest updated")
                 except ValueError:
                     pass
-        "[[Quest Giver]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+        questgiver "[[TO BE WRITTEN BY THE PROJECT OWNER]"
     elif _return == "read":
         $ res = breach_do_check("intuition", 12)  # 12: conservative authored literal (G-041)
         if res["success"]:
-            "[[Quest Giver]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            questgiver "[[TO BE WRITTEN BY THE PROJECT OWNER]"
         else:
-            "[[Quest Giver]" "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            questgiver "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+    return
+
+
+## --------------------------------------------------------------------------
+## Imara at the Lamplighter Guildhall -- the first authored NPC and the first
+## conversational dialogue HUB (GDD 15.7). Reached from the guild-hall hotspot
+## (data/locations.py hs_guildhall_imara -> kind "character" ->
+## ("dialogue", "dlg_imara"), dispatched by city_free_loop via `call
+## expression`). The spoken lines are OWNER placeholders ("[TO BE WRITTEN...]")
+## and the question captions are bracketed placeholders too; what this label
+## actually exercises is the HUB SYSTEM:
+##   - ONE-SHOT questions vanish once asked  (`if not breach_asked(...)`)
+##   - CONDITIONAL questions appear only when their predicate holds
+##     (a follow-up gated on an earlier question; a members-only line gated on
+##      the prologue's flags["lamplighter_member"]).
+## The native `menu:` keeps Imara's last line in the dialogue box behind the
+## choices (config.choice_empty_window = extend, options.rpy). Every question
+## captions with "[[" so the literal "[" shows instead of being read as Ren'Py
+## text interpolation (the project's owner-placeholder convention).
+##
+## NOTE (art): no guildhall background exists, so the hub plays over the current
+## scene like every other dialogue label; drop a `scene` in once art lands.
+## --------------------------------------------------------------------------
+
+label dlg_imara:
+    # Opening line each time the player talks to her (owner prose).
+    imara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+
+label dlg_imara_hub:
+    menu:
+        # One-shot: a plain question that disappears once it has been asked.
+        "[[Question A]" if not breach_asked("imara", "guild"):
+            $ breach_mark_asked("imara", "guild")
+            imara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_imara_hub
+
+        # Conditional + one-shot: a follow-up that only appears AFTER Question A
+        # has been asked (and then disappears once it, too, has been asked).
+        "[[Follow-up to A]" if breach_asked("imara", "guild") and not breach_asked("imara", "guild_followup"):
+            $ breach_mark_asked("imara", "guild_followup")
+            imara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_imara_hub
+
+        # Conditional + one-shot: only a registered Guild member sees this (the
+        # prologue sets flags["lamplighter_member"] at registration, #17.2).
+        "[[Members-only question]" if gs["flags"].get("lamplighter_member") and not breach_asked("imara", "member"):
+            $ breach_mark_asked("imara", "member")
+            imara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_imara_hub
+
+        # Always available: end the conversation and return to the hall.
+        "That's all for now.":
+            pass
     return
