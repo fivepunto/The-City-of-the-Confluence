@@ -46,8 +46,9 @@ label after_load:
 label start:
     # New game enters the scripted prologue (GDD #17.2). The prologue builds the
     # game state, runs character creation, plays the beats + tutorial fight, and
-    # ends in Free Mode; on its return (the player leaves the city) we fall into
-    # the prototype hub so play continues.
+    # flows straight into Free Mode -- which is the whole game loop. The prologue
+    # does not return in normal play, so the trailing `return` is only a safety
+    # net (it drops to the Ren'Py main menu if Free Mode ever exits).
     #
     # A long, dramatic fade carries the main menu into the first creation screen.
     # There is no built-in "game start" transition (see options.rpy), so we
@@ -55,60 +56,4 @@ label start:
     # options.rpy (slower than the stock `fade`, for an epic open).
     $ renpy.transition(game_start_fade)
     call prologue
-    jump p1_hub
-
-
-label p1_hub:
-    while True:
-        if not gs["party"]:
-            menu:
-                "What do you want to do?"
-                "Play the prologue":
-                    call prologue
-                "Create the protagonist":
-                    call character_creation
-                "Open the debug hub":
-                    call screen debug_hub
-                "Quit to main menu":
-                    return
-        else:
-            menu:
-                "What do you want to do?"
-                "Enter the city":
-                    call city_free_mode
-                "Enter the Breach":
-                    call expedition_mode
-                "Tutorial fight: Young Wolf":
-                    call combat_encounter(["young_wolf"])
-                "Test fight: Wolf Pack":
-                    call combat_encounter(["standard_wolf", "standard_wolf", "standard_wolf", "standard_wolf"])
-                "Open character sheet":
-                    call screen character_sheet
-                    # the sheet is a level-up entry point (15.2). Guard the
-                    # subscript: a screen can return a bare value (root
-                    # cause B) -- only act on a well-shaped intent tuple.
-                    if isinstance(_return, (tuple, list)) and len(_return) >= 2 and _return[0] == "levelup":
-                        call levelup_wizard(_return[1])
-                "Open inventory and equipment":
-                    call screen inventory_screen
-                "Level up protagonist" if bch.can_level_up(REG, gs["party"][0]):
-                    call levelup_wizard(gs["party"][0]["id"])
-                "Open the debug hub":
-                    call screen debug_hub
-                    # the hub can launch any debug encounter
-                    if isinstance(_return, (tuple, list)) and len(_return) >= 3 and _return[0] == "combat":
-                        call combat_encounter(_return[1], _return[2])
-                    # ...or jump straight into Free Mode (P3)
-                    elif isinstance(_return, (tuple, list)) and _return and _return[0] == "city":
-                        call city_free_mode
-                    # ...or into the Breach / a camp (P4)
-                    elif isinstance(_return, (tuple, list)) and _return and _return[0] == "expedition":
-                        call expedition_mode
-                    elif isinstance(_return, (tuple, list)) and _return and _return[0] == "camp":
-                        call camp_mode
-                    elif isinstance(_return, (tuple, list)) and _return and _return[0] == "inn":
-                        call inn_sleep
-                "Start over (new character)":
-                    $ gs = bstate.new_game_state(REG)
-                "Quit to main menu":
-                    return
+    return

@@ -8,6 +8,9 @@
 # placeholders in data/locations.py; this glue is content-free.
 
 default breach_free_leave = False
+# The location the player was at when they opened the city-map overlay, so
+# "Close Map" can bring them back there (city_free_loop updates it).
+default breach_map_return = "loc_guildhall"
 
 
 ## The city map (#13.2 L1396-1398): district-to-district travel. Only
@@ -79,10 +82,10 @@ screen city_map():
                                 size gui.size_micro
                                 yalign 0.5
                                 color gui.muted_text_color
-                        textbutton "Leave Free Mode":
-                            style "breach_button"
+                        textbutton "Close Map":
+                            style "breach_frame_button"
                             yalign 0.5
-                            action Return(("leave",))
+                            action Return(("close_map",))
             use breach_lip(gui.breach_accent_color)
 
             ## The map field: a recessed dark ground the district markers rise
@@ -157,7 +160,6 @@ screen free_mode_menu():
                 use breach_lip(gui.breach_accent_dim_color)
                 null height gui.pad_xs
                 textbutton "Resume" style "breach_frame_button" xfill True action Return(None)
-                textbutton "Return to Main Menu" style "breach_frame_button" xfill True action Return("leave")
 
 
 ## Free Mode (#13.1 L1388-1393): the interface enables and the player owns
@@ -166,19 +168,14 @@ screen free_mode_menu():
 ## full-screen sub-menu (#15.1 L1496-1499).
 label city_free_mode:
     $ store.breach_free_leave = False
-    # The FIRST-ever Free Mode entry (including straight out of the prologue,
-    # #17.2, where Imara has just registered the MC) opens INSIDE the Lamplighter
-    # Guildhall; every later entry opens on the city map as before. The player
-    # can return to the hall any time via the HUD map button. Marking the
-    # one-shot is a committed state change, so block rollback right after it
-    # (CLAUDE.md rollback discipline).
-    if not gs["flags"].get("entered_free_mode"):
-        $ gs["flags"]["entered_free_mode"] = True
-        $ renpy.block_rollback()
+    # Free Mode always opens INSIDE a location; the city map is an overlay the
+    # player opens from the HUD map button. Resume the last valid location, or
+    # default to the Lamplighter Guildhall (also the first stop straight out of
+    # the prologue, #17.2). Guarding on "in REG" also recovers a save whose
+    # stored location was since removed.
+    if gs.get("location") not in REG["locations"]:
         $ bstate.set_region(gs, "district_guildhall")
         $ bstate.set_location(gs, "loc_guildhall")
-    else:
-        $ bstate.set_location(gs, None)     # start at the city map
     $ store.hud_mode = "city"
     jump city_free_loop
 
@@ -191,6 +188,8 @@ label city_free_loop:
         call screen city_map
     else:
         # HUD visible while exploring a location; hidden again during dispatch.
+        # Remember this location so "Close Map" can bring the player back here.
+        $ store.breach_map_return = gs.get("location")
         $ store.hud_visible = (gs is not None)
         call screen location_screen(gs.get("location"))
     $ _intent = _return
@@ -210,6 +209,11 @@ label city_free_loop:
             $ bstate.set_location(gs, _intent[1])
         elif _tag == "exit":
             $ bstate.set_location(gs, None)          # back to the city map
+        elif _tag == "close_map":
+            # Close the map overlay and return to where the player was (the
+            # location remembered above; fall back to the Guildhall).
+            $ _ret = store.breach_map_return if store.breach_map_return in REG["locations"] else "loc_guildhall"
+            $ bstate.set_location(gs, _ret)
         elif _tag == "shop":
             call screen shop_screen(_intent[1])
         elif _tag == "dialogue":

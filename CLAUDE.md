@@ -54,14 +54,16 @@ config.
 - **Boot-time structural check (automatic):** in an unpacked project `config.developer`
   is auto-True, so `game/script.rpy` runs `assert registry.validate(REG) == []` on every
   boot. Players in a packaged build never hit it.
-- **Full content validation (in-engine):** the debug hub's **"Validate content"** button
-  runs `core.registry.content_problems(REG)` — structural `validate()` **plus** a
-  re-derive of the spell-slice matrix against the GDD §9.2 access counts **plus** a scan
-  for unresolved authoring placeholders (`"TO BE WRITTEN"`, etc.). Note: it is *not* an
-  abbreviation/jargon scan — `AC`/`DC`/dice notation are intentionally allowed because
+- **Full content validation (headless):** `core.registry.content_problems(REG)` —
+  structural `validate()` **plus** a re-derive of the spell-slice matrix against the GDD
+  §9.2 access counts **plus** a scan for unresolved authoring placeholders (`"TO BE
+  WRITTEN"`, etc.). The pytest suite exercises it; for an ad-hoc check call it directly
+  (`python3 -c "import sys; sys.path.insert(0,'game'); from data import REGISTRY as REG;
+  from core import registry; print(registry.content_problems(REG))"`). Note: it is *not*
+  an abbreviation/jargon scan — `AC`/`DC`/dice notation are intentionally allowed because
   the UI shows BG3-style mechanical tooltips (some stale "voice scan" naming remains).
 
-Keep lint, MCP checks, and the content validator green.
+Keep lint, MCP checks, and `content_problems` green.
 
 ## The registry — single source of truth (`game/data/`)
 
@@ -101,7 +103,7 @@ exactly levels **1–12** (the global level cap).
   raises `ValueError` on illegal picks (and can return follow-up choices). Picks are
   final — no respec.
 - **`dice.py`** — all randomness flows through one seedable module-level RNG
-  (`dice.seed()`); the debug hub seeds it for reproducible fights. Advantage/disadvantage
+  (`dice.seed()`), so tests and tools can make fights reproducible. Advantage/disadvantage
   never stack and adv+dis cancels to net 0; callers pass the already-netted `+1/0/-1`.
 - **`checks.py`** — the single composition point of `character.skill_mod` into
   `dice.d20_test`; read `result['success']`/`result['margin']`, never reinterpret a raw
@@ -174,14 +176,14 @@ add a state-committing action, block rollback in the `.rpy` layer right after it
 - **Boot (`script.rpy`):** `init 1 python` imports core modules under canonical aliases
   defined **once** here — `bch, binv, bstate, bui, bdice, bchecks, bquests, bshop, brest`
   — and sets `REG = data.REGISTRY`. Out-of-combat screen files reuse these aliases with
-  zero `from core import` lines. (Exceptions: the rollback-blocked combat loop and the
-  debug hub import their own engine handles on top — `bcombat`/`bhooks` in
-  `combat_screen.rpy`.) `label start` → `p1_hub` is the prototype hub menu.
+  zero `from core import` lines. (Exception: the rollback-blocked combat loop imports its
+  own engine handles on top — `bcombat`/`bhooks` in `combat_screen.rpy`.) `label start`
+  runs the prologue, which flows straight into Free Mode (the whole game loop).
 - **One screen file per surface:** `creation.rpy` + `choice_steps.rpy` (creation),
   `charsheet.rpy`, `inventory_screen.rpy`, `levelup.rpy`, `combat_screen.rpy` (the lane
   combat loop), `city.rpy`/`location_screen.rpy`/`shop_screen.rpy`,
   `camp.rpy`/`expedition.rpy`, `quest_tab.rpy`, `hud.rpy`, `dialogue.rpy`, `prologue.rpy`,
-  `debug_hub.rpy`, `toast.rpy`. The combat screen returns an **intent tuple** (e.g.
+  `toast.rpy`. The combat screen returns an **intent tuple** (e.g.
   `('attack', cid, reckless)`, `('cast', spell, cid, lane)`); `breach_combat_dispatch`
   shape-guards it and calls the engine. UI targeting helpers only *mirror* engine
   predicates — they never resolve rules themselves.
@@ -209,11 +211,3 @@ re-skins exactly one tier. Any site rendering a data-driven registry name **must
 it through `breach_lit` (`style.rpy`) — Ren'Py runs `[]`/`{}` markup on shown text, so an
 unescaped name will be eval'd and crash; the shared components already call `breach_lit`
 internally, so pass them raw strings.
-
-## Debug hub (`game/debug_hub.rpy`)
-
-The testing console, reachable from `p1_hub`. Give XP/gold/items, jump to combat, set day
-phase, seed the RNG, run the content validator, browse the registry, and fabricate test
-followers (it drives the real creation + level-up choice machinery with a first-legal
-auto-chooser). It uses plain default styling, deliberately exempt from the GUI discipline
-above. Use and extend it for verification.
