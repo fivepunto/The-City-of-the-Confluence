@@ -135,9 +135,8 @@ define config.window_hide_transition = Dissolve(.2)
 ## so the box stays; and if no say line preceded the menu, `extend` re-shows the
 ## last line rather than a blank box (the Ren'Py-documented intended value).
 ##
-## Scope: this governs ONLY the `menu` statement / `choice` screen. It does NOT
-## touch `call screen skill_menu` (dialogue.rpy), which deliberately scrims the
-## textbox -- that is a separate, intentional surface.
+## Scope: this governs ONLY the `menu` statement / `choice` screen, never any
+## `call screen ...` dialogue surface.
 define config.choice_empty_window = extend
 
 
