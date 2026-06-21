@@ -132,7 +132,7 @@ screen location_screen(loc_id):
         use breach_panel():
             vbox:
                 spacing gui.pad_s
-                if loc_district_name:
+                if loc_district_name and loc_district_name != loc["name"]:
                     text breach_lit(loc_district_name).upper():
                         style "breach_label_text"
                 text breach_lit(loc["name"]):

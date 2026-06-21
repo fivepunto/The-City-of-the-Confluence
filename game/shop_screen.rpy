@@ -21,21 +21,28 @@ init python:
         """The record for the item card, looked up across the catalogues a
         shop can deal in. Falls back to a display-name-only record so a
         listing never crashes on an unpriced curiosity."""
-        for table in ("consumables", "magic_items", "relics"):
+        for table in ("consumables", "magic_items", "relics", "weapons", "armor"):
             rec = REG.get(table, {}).get(item_id)
             if rec is not None:
                 return rec
         return {"name": str(item_id).replace("_", " ").title()}
 
     def breach_shop_item_info(item_id):
-        """A jargon-free one-line description (GDD #15.0): the re-voiced
-        display blurb. All three categories route through the DISPLAY layer
-        so the voice gate (test_display_voice) covers them and no raw dice
-        or rules shorthand reaches the player."""
+        """A one-line description for the item card (GDD #15.0). Consumables /
+        relics / magic items route through the DISPLAY voice layer (the voice
+        gate covers them). Weapons and armor have no authored blurb, so they
+        show their mechanical line instead -- the BG3-style mechanical readout
+        the UI is allowed to surface (CLAUDE.md)."""
         for table in ("consumables", "relics", "magic_items"):
             if item_id in REG.get(table, {}):
                 fallback = REG[table][item_id].get("effect", "")
                 return breach_player_text(REG, table, item_id, fallback)
+        w = REG.get("weapons", {}).get(item_id)
+        if w is not None:
+            return "%s %s" % (w["dice"], w["damage_type"])
+        a = REG.get("armor", {}).get(item_id)
+        if a is not None:
+            return "AC %d" % a["base_ac"]
         return ""
 
     def breach_shop_buy(shop_id, item_id):

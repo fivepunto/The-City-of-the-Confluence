@@ -34,6 +34,26 @@ DISTRICTS = {
         "locations": ["loc_guildhall"],
         "src": "§17.2 L1741",
     },
+    # Two shop districts (owner canon). Each appears on the city map and its one
+    # location holds the shopkeeper; the shop itself opens from that NPC's
+    # dialogue (dialogue.rpy). Anouk's Anvil = basic weapons, Helms and Plates =
+    # basic armor.
+    "district_anouks_anvil": {
+        "id": "district_anouks_anvil",
+        "name": "Anouk's Anvil",
+        "available": True,
+        "entry": "loc_anouks_anvil",
+        "locations": ["loc_anouks_anvil"],
+        "src": "§13.2 L1396-1398",
+    },
+    "district_helms_and_plates": {
+        "id": "district_helms_and_plates",
+        "name": "Helms and Plates",
+        "available": True,
+        "entry": "loc_helms_and_plates",
+        "locations": ["loc_helms_and_plates"],
+        "src": "§13.2 L1396-1398",
+    },
 }
 
 LOCATIONS = {
@@ -49,6 +69,25 @@ LOCATIONS = {
         "hotspots": ["hs_guildhall_imara", "hs_guildhall_vekshara",
                      "hs_guildhall_reinecke", "hs_guildhall_questboard"],
         "src": "§17.2 L1741",
+    },
+    # The two shop interiors. Each holds only its shopkeeper; the breadcrumb
+    # (district name) is suppressed when it matches the location name (the shop
+    # districts are named the same as their one location), see location_screen.
+    "loc_anouks_anvil": {
+        "id": "loc_anouks_anvil",
+        "district": "district_anouks_anvil",
+        "name": "Anouk's Anvil",
+        "bg_placeholder_key": "loc_anouks_anvil",
+        "hotspots": ["hs_anouks_anvil_anouk"],
+        "src": "§13 L1399-1400",
+    },
+    "loc_helms_and_plates": {
+        "id": "loc_helms_and_plates",
+        "district": "district_helms_and_plates",
+        "name": "Helms and Plates",
+        "bg_placeholder_key": "loc_helms_and_plates",
+        "hotspots": ["hs_helms_and_plates_oswin"],
+        "src": "§13 L1399-1400",
     },
 }
 
@@ -96,5 +135,26 @@ HOTSPOTS = {
         "pos": (1350, 500),
         "visible_flag": None,
         "src": "§17.2 L1727-1736",
+    },
+    # The two shopkeepers (owner canon). character hotspots -> each opens its
+    # NPC's dialogue hub (dialogue.rpy), which carries the "Browse the wares."
+    # option that opens the shop. Centred in their single-NPC locations.
+    "hs_anouks_anvil_anouk": {
+        "id": "hs_anouks_anvil_anouk",
+        "label": "Anouk",
+        "kind": "character",
+        "target": "dlg_anouk",          # -> dialogue label in dialogue.rpy
+        "pos": (900, 520),
+        "visible_flag": None,
+        "src": "§13 L1399-1400",
+    },
+    "hs_helms_and_plates_oswin": {
+        "id": "hs_helms_and_plates_oswin",
+        "label": "Oswin",
+        "kind": "character",
+        "target": "dlg_oswin",          # -> dialogue label in dialogue.rpy
+        "pos": (900, 520),
+        "visible_flag": None,
+        "src": "§13 L1399-1400",
     },
 }

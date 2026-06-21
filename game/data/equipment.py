@@ -98,6 +98,7 @@ WEAPONS = {
     "dagger": {
         "id": "dagger",
         "name": "Dagger",
+        "price": 2,                      # D&D 5.2 SRD
         "dice": "1d4",
         "damage_type": "piercing",
         "properties": ["finesse", "light", "thrown"],
@@ -107,6 +108,7 @@ WEAPONS = {
     "mace": {
         "id": "mace",
         "name": "Mace",
+        "price": 5,                      # D&D 5.2 SRD
         "dice": "1d6",
         "damage_type": "bludgeoning",
         "properties": [],
@@ -116,6 +118,7 @@ WEAPONS = {
     "quarterstaff": {
         "id": "quarterstaff",
         "name": "Quarterstaff",
+        "price": 1,                      # SRD 2 sp, rounded up (gold-only economy)
         "dice": "1d8",
         "damage_type": "bludgeoning",
         "properties": ["two_handed"],
@@ -125,6 +128,7 @@ WEAPONS = {
     "spear": {
         "id": "spear",
         "name": "Spear",
+        "price": 1,                      # D&D 5.2 SRD
         "dice": "1d6",
         "damage_type": "piercing",
         "properties": ["thrown"],
@@ -134,6 +138,7 @@ WEAPONS = {
     "handaxe": {
         "id": "handaxe",
         "name": "Handaxe",
+        "price": 5,                      # D&D 5.2 SRD
         "dice": "1d6",
         "damage_type": "slashing",
         "properties": ["light", "thrown"],
@@ -143,6 +148,7 @@ WEAPONS = {
     "sickle": {
         "id": "sickle",
         "name": "Sickle",
+        "price": 1,                      # D&D 5.2 SRD
         "dice": "1d4",
         "damage_type": "slashing",
         "properties": ["light"],
@@ -152,6 +158,7 @@ WEAPONS = {
     "shortbow": {
         "id": "shortbow",
         "name": "Shortbow",
+        "price": 25,                     # D&D 5.2 SRD
         "dice": "1d6",
         "damage_type": "piercing",
         "properties": ["ranged", "two_handed"],
@@ -161,6 +168,7 @@ WEAPONS = {
     "sling": {
         "id": "sling",
         "name": "Sling",
+        "price": 1,                      # SRD 1 sp, rounded up (gold-only economy)
         "dice": "1d4",
         "damage_type": "bludgeoning",
         "properties": ["ranged"],
@@ -290,6 +298,7 @@ ARMOR = {
     "leather": {
         "id": "leather",
         "name": "Leather",
+        "price": 10,                     # D&D 5.2 SRD
         "base_ac": 11,
         "dex_cap": None,
         "str_req": None,
@@ -299,6 +308,7 @@ ARMOR = {
     "studded_leather": {
         "id": "studded_leather",
         "name": "Studded Leather",
+        "price": 45,                     # D&D 5.2 SRD
         "base_ac": 12,
         "dex_cap": None,
         "str_req": None,

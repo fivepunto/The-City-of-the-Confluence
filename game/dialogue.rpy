@@ -157,3 +157,72 @@ label dlg_reinecke_hub:
         "That's all for now.":
             pass
     return
+
+
+## --------------------------------------------------------------------------
+## Anouk (Anouk's Anvil, basic weapons) and Oswin (Helms and Plates, basic
+## armor) -- the two shopkeepers (owner canon). Same conversational HUB format
+## as Imara, with one extra ALWAYS-available option: "Browse the wares." opens
+## their shop (data/shop.py) and returns to the hub. Spoken lines / question
+## captions are owner placeholders; "Browse the wares." is a UI action, not
+## prose.
+## --------------------------------------------------------------------------
+
+label dlg_anouk:
+    anouk "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+
+label dlg_anouk_hub:
+    menu:
+        "[[Question A]" if not breach_asked("anouk", "q1"):
+            $ breach_mark_asked("anouk", "q1")
+            anouk "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_anouk_hub
+
+        "[[Follow-up to A]" if breach_asked("anouk", "q1") and not breach_asked("anouk", "q1_followup"):
+            $ breach_mark_asked("anouk", "q1_followup")
+            anouk "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_anouk_hub
+
+        "[[Members-only question]" if gs["flags"].get("lamplighter_member") and not breach_asked("anouk", "member"):
+            $ breach_mark_asked("anouk", "member")
+            anouk "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_anouk_hub
+
+        # Always available: open her shop (the basic weapons), then back to talk.
+        "Browse the wares.":
+            call screen shop_screen("anouks_anvil")
+            jump dlg_anouk_hub
+
+        "That's all for now.":
+            pass
+    return
+
+
+label dlg_oswin:
+    oswin "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+
+label dlg_oswin_hub:
+    menu:
+        "[[Question A]" if not breach_asked("oswin", "q1"):
+            $ breach_mark_asked("oswin", "q1")
+            oswin "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_oswin_hub
+
+        "[[Follow-up to A]" if breach_asked("oswin", "q1") and not breach_asked("oswin", "q1_followup"):
+            $ breach_mark_asked("oswin", "q1_followup")
+            oswin "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_oswin_hub
+
+        "[[Members-only question]" if gs["flags"].get("lamplighter_member") and not breach_asked("oswin", "member"):
+            $ breach_mark_asked("oswin", "member")
+            oswin "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_oswin_hub
+
+        # Always available: open his shop (the basic armor), then back to talk.
+        "Browse the wares.":
+            call screen shop_screen("helms_and_plates")
+            jump dlg_oswin_hub
+
+        "That's all for now.":
+            pass
+    return

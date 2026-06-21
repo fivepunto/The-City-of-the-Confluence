@@ -27,7 +27,7 @@ def _record(registry, item_id):
     one, or None. Order is deliberate: a single id lives in exactly one
     table, so the first hit is authoritative."""
     for table in ("consumables", "magic_items", "camp_upgrades", "relics",
-                  "key_items"):
+                  "key_items", "weapons", "armor"):
         rec = registry.get(table, {}).get(item_id)
         if rec is not None:
             return rec
@@ -46,9 +46,11 @@ def _rarity(registry, item_id):
 
 def buy_price(registry, item_id):
     """The buy price, sourced ONLY from the item record's `price` field
-    (consumables, magic_items, camp_upgrades). Raises ValueError when the
-    item carries no price (#15.8 L1608-1612)."""
-    for table in ("consumables", "magic_items", "camp_upgrades"):
+    (consumables, magic_items, camp_upgrades, and the priced basic weapons /
+    armor). Raises ValueError when the item carries no price (#15.8
+    L1608-1612)."""
+    for table in ("consumables", "magic_items", "camp_upgrades",
+                  "weapons", "armor"):
         rec = registry.get(table, {}).get(item_id)
         if rec is not None and "price" in rec:
             return int(rec["price"])

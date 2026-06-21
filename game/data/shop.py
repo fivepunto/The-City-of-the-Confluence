@@ -36,4 +36,31 @@ SHOPS = {
         ],
         "src": "§14.3 L1424-1426, §15.8 L1608-1612",
     },
+    # Anouk's Anvil -- sells the basic (simple) weapons. Prices live on each
+    # weapon record (D&D 5.2 SRD), so this table only lists what is stocked.
+    "anouks_anvil": {
+        "id": "anouks_anvil",
+        "name": "Anouk's Anvil",
+        "stock": [
+            {"item_id": "dagger", "count": None},
+            {"item_id": "mace", "count": None},
+            {"item_id": "quarterstaff", "count": None},
+            {"item_id": "spear", "count": None},
+            {"item_id": "handaxe", "count": None},
+            {"item_id": "sickle", "count": None},
+            {"item_id": "shortbow", "count": None},
+            {"item_id": "sling", "count": None},
+        ],
+        "src": "§14.3 L1424-1426, §15.8 L1608-1612",
+    },
+    # Helms and Plates -- sells the basic (light) armor.
+    "helms_and_plates": {
+        "id": "helms_and_plates",
+        "name": "Helms and Plates",
+        "stock": [
+            {"item_id": "leather", "count": None},
+            {"item_id": "studded_leather", "count": None},
+        ],
+        "src": "§14.3 L1424-1426, §15.8 L1608-1612",
+    },
 }

@@ -34,6 +34,11 @@ define vekshara = Character("Vekshara")     # Guild Hall NPC
 define reinecke = Character("Reinecke")     # Guild Hall NPC
 
 
+# --- Shopkeepers (owner canon) ---
+define anouk = Character("Anouk")           # Anouk's Anvil (basic weapons)
+define oswin = Character("Oswin")           # Helms and Plates (basic armor)
+
+
 # --- Placeholder city NPCs (owner to name; bracketed like the old inline ones) ---
 define townsperson = Character("[[Townsperson]")
 define merchant    = Character("[[Merchant]")
