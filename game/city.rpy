@@ -166,7 +166,19 @@ screen free_mode_menu():
 ## full-screen sub-menu (#15.1 L1496-1499).
 label city_free_mode:
     $ store.breach_free_leave = False
-    $ bstate.set_location(gs, None)         # start at the city map
+    # The FIRST-ever Free Mode entry (including straight out of the prologue,
+    # #17.2, where Imara has just registered the MC) opens INSIDE the Lamplighter
+    # Guildhall; every later entry opens on the city map as before. The player
+    # can return to the hall any time via the HUD map button. Marking the
+    # one-shot is a committed state change, so block rollback right after it
+    # (CLAUDE.md rollback discipline).
+    if not gs["flags"].get("entered_free_mode"):
+        $ gs["flags"]["entered_free_mode"] = True
+        $ renpy.block_rollback()
+        $ bstate.set_region(gs, "district_guildhall")
+        $ bstate.set_location(gs, "loc_guildhall")
+    else:
+        $ bstate.set_location(gs, None)     # start at the city map
     $ store.hud_mode = "city"
     jump city_free_loop
 
