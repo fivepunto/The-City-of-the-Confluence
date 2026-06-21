@@ -92,7 +92,7 @@ screen breach_quest_header():
             xfill True
             use breach_title("Quests")
             textbutton "Close Quests":
-                style "breach_button"
+                style "breach_frame_button"
                 xalign 1.0
                 yalign 0.5
                 action Return(None)
