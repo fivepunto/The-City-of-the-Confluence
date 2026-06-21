@@ -115,6 +115,22 @@ def active_quests(registry, state):
     return groups
 
 
+def board_quests(registry, state):
+    """Quest ids POSTED on the Guild notice board (#15.5 / #17.2): quests
+    flagged ``board: True`` in the registry that the player has not yet started
+    or concluded (starting a quest takes it off the board). Registry order.
+    Empty until a quest sets ``board: True``."""
+    posted = []
+    runtime = state.get("quests", {})
+    for quest_id, static in registry["quests"].items():
+        if not static.get("board"):
+            continue
+        if quest_id in runtime:          # started or concluded -> off the board
+            continue
+        posted.append(quest_id)
+    return posted
+
+
 def quest_view(registry, state, quest_id):
     """The right pane of the quest tab (#15.5 L1557-1562): a render dict
     merging the static definition with runtime progress. current_objective

@@ -290,7 +290,7 @@ init python:
         "inventory_screen", "character_sheet", "shop_screen", "quest_tab",
         "combat_screen", "free_mode_menu", "camp_scene", "camp_upgrade_shop",
         "camp_hunt_picker", "camp_manage_menu", "breather_recovery",
-        "city_map", "location_screen", "expedition_map")
+        "city_map", "location_screen", "expedition_map", "quest_board")
 
     def breach_show_quickbar():
         if getattr(store, "hud_visible", False):

@@ -37,6 +37,8 @@ init python:
             return ("goto", h["target"])
         if kind == "exit":
             return ("exit", None)
+        if kind == "questboard":
+            return ("questboard", None)
         # An unknown kind is a data error; refuse rather than guess (#13.2).
         return None
 
@@ -65,6 +67,7 @@ init python:
         "shop": "Shop",
         "character": "Person",
         "location": "Door",
+        "questboard": "Board",
         "exit": "Out",
     }
 

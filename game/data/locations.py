@@ -12,10 +12,11 @@ removed. Add new districts/locations/hotspots to the three tables below.
 
 Hotspot contract (the location screen dispatches on `kind`, faithful to
 #13.2's "sub-locations, characters, doors"):
-  kind "location"  -> target = a location id (a door to another sub-location)
-  kind "character" -> target = a dialogue label name (a person to talk to)
-  kind "shop"      -> target = a shop id (a vendor door)
-  kind "exit"      -> target = None (leave the district back to the city map)
+  kind "location"   -> target = a location id (a door to another sub-location)
+  kind "character"  -> target = a dialogue label name (a person to talk to)
+  kind "shop"       -> target = a shop id (a vendor door)
+  kind "questboard" -> target = None (opens the Guild notice board screen)
+  kind "exit"       -> target = None (leave the district back to the city map)
 `pos` is an (x, y) placement on the 1920x1080 canvas; `visible_flag`, when
 set, names a state flag that must be truthy for the hotspot to show.
 """
@@ -45,21 +46,54 @@ LOCATIONS = {
         "district": "district_guildhall",
         "name": "Guild Hall",
         "bg_placeholder_key": "loc_guildhall",
-        "hotspots": ["hs_guildhall_imara"],
+        "hotspots": ["hs_guildhall_imara", "hs_guildhall_vekshara",
+                     "hs_guildhall_reinecke", "hs_guildhall_questboard"],
         "src": "§17.2 L1741",
     },
 }
 
 HOTSPOTS = {
-    # Imara, the guild receptionist (owner canon, #17.2). The ONLY hotspot in
-    # the hall for now -- the player leaves via the HUD map button, not an exit
-    # plate. Clicking her runs the conversational dialogue hub (dialogue.rpy).
+    # Imara, the guild receptionist (owner canon, #17.2). Clicking her runs the
+    # conversational dialogue hub (dialogue.rpy). The hall has no exit plate --
+    # the player leaves via the HUD map button.
     "hs_guildhall_imara": {
         "id": "hs_guildhall_imara",
         "label": "Imara",
         "kind": "character",
         "target": "dlg_imara",          # -> dialogue label in dialogue.rpy
         "pos": (900, 520),
+        "visible_flag": None,
+        "src": "§17.2 L1727-1736",
+    },
+    # Two more Guild Hall NPCs (owner canon). Same character-hotspot shape as
+    # Imara; each opens its own conversational dialogue hub (dialogue.rpy).
+    "hs_guildhall_vekshara": {
+        "id": "hs_guildhall_vekshara",
+        "label": "Vekshara",
+        "kind": "character",
+        "target": "dlg_vekshara",       # -> dialogue label in dialogue.rpy
+        "pos": (350, 450),
+        "visible_flag": None,
+        "src": "§17.2 L1727-1736",
+    },
+    "hs_guildhall_reinecke": {
+        "id": "hs_guildhall_reinecke",
+        "label": "Reinecke",
+        "kind": "character",
+        "target": "dlg_reinecke",       # -> dialogue label in dialogue.rpy
+        "pos": (1350, 820),
+        "visible_flag": None,
+        "src": "§17.2 L1727-1736",
+    },
+    # The Guild notice board (owner canon, #17.2 -- Imara points the player at
+    # it). kind "questboard" -> opens the quest_board screen (city_free_loop).
+    # Empty until a quest is flagged board:True (core.quests.board_quests).
+    "hs_guildhall_questboard": {
+        "id": "hs_guildhall_questboard",
+        "label": "Notice Board",
+        "kind": "questboard",
+        "target": None,                 # one board; the screen is fixed
+        "pos": (1350, 500),
         "visible_flag": None,
         "src": "§17.2 L1727-1736",
     },

@@ -216,6 +216,8 @@ label city_free_loop:
             $ bstate.set_location(gs, _ret)
         elif _tag == "shop":
             call screen shop_screen(_intent[1])
+        elif _tag == "questboard":
+            call screen quest_board
         elif _tag == "dialogue":
             # HUD auto-hides during dialogue (#15.1 L1496-1497)
             call expression _intent[1]
