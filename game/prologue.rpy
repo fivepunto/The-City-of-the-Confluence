@@ -181,19 +181,19 @@ label prologue:
     "You stand in the Guildhall."
     "The medallion is warm in your hand. Wherever you go now is your own choice."
 
-    # GAP(quests): the owner's beat adds two quests here -- "Enter the Breach"
-    # and "Find a companion" -- but neither exists as a record in data/quests.py
-    # yet (only placeholder quests do). Authoring those records (title, giver,
-    # location, objectives) is owner content; do not invent it (CLAUDE.md).
-    # Imara's lines above already deliver the guidance verbally. Once the records
-    # exist, start them here exactly like dialogue.rpy does:
-    #     python:
-    #         for _qid in ("quest_enter_breach", "quest_find_companion"):
-    #             try:
-    #                 bquests.start_quest(REG, gs, _qid)
-    #             except ValueError:
-    #                 pass
-    #         renpy.block_rollback()
+    # Imara's lines (above) hand the player their first two goals; spawn them as
+    # real quests now, before Free Mode begins. start_quest is guarded so a
+    # re-entry can never double-start (it raises -> caught), and the starts are
+    # committed past rollback (#16.1) so they can't be undone. Objective steps
+    # are still owner placeholders (data/quests.py); concluding the quests when
+    # the player actually finds a companion / enters the Breach is future work.
+    python:
+        for _qid in ("quest_enter_breach", "quest_find_companion"):
+            try:
+                bquests.start_quest(REG, gs, _qid)
+            except ValueError:
+                pass
+        renpy.block_rollback()
 
     call city_free_mode
     return
