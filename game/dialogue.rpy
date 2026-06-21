@@ -93,3 +93,67 @@ label dlg_imara_hub:
         "That's all for now.":
             pass
     return
+
+
+## --------------------------------------------------------------------------
+## Vekshara and Reinecke -- two more Guild Hall NPCs (owner canon). Same
+## conversational HUB format as Imara above (one-shot + conditional placeholder
+## questions; see that block for the mechanics). Spoken lines and question
+## captions are owner placeholders; the asked-set is namespaced per NPC, so the
+## three hubs never collide.
+## --------------------------------------------------------------------------
+
+label dlg_vekshara:
+    vekshara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+
+label dlg_vekshara_hub:
+    menu:
+        # One-shot: vanishes once asked.
+        "[[Question A]" if not breach_asked("vekshara", "q1"):
+            $ breach_mark_asked("vekshara", "q1")
+            vekshara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_vekshara_hub
+
+        # Conditional + one-shot: appears only after Question A has been asked.
+        "[[Follow-up to A]" if breach_asked("vekshara", "q1") and not breach_asked("vekshara", "q1_followup"):
+            $ breach_mark_asked("vekshara", "q1_followup")
+            vekshara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_vekshara_hub
+
+        # Conditional + one-shot: only a registered Guild member sees this.
+        "[[Members-only question]" if gs["flags"].get("lamplighter_member") and not breach_asked("vekshara", "member"):
+            $ breach_mark_asked("vekshara", "member")
+            vekshara "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_vekshara_hub
+
+        "That's all for now.":
+            pass
+    return
+
+
+label dlg_reinecke:
+    reinecke "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+
+label dlg_reinecke_hub:
+    menu:
+        # One-shot: vanishes once asked.
+        "[[Question A]" if not breach_asked("reinecke", "q1"):
+            $ breach_mark_asked("reinecke", "q1")
+            reinecke "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_reinecke_hub
+
+        # Conditional + one-shot: appears only after Question A has been asked.
+        "[[Follow-up to A]" if breach_asked("reinecke", "q1") and not breach_asked("reinecke", "q1_followup"):
+            $ breach_mark_asked("reinecke", "q1_followup")
+            reinecke "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_reinecke_hub
+
+        # Conditional + one-shot: only a registered Guild member sees this.
+        "[[Members-only question]" if gs["flags"].get("lamplighter_member") and not breach_asked("reinecke", "member"):
+            $ breach_mark_asked("reinecke", "member")
+            reinecke "[[TO BE WRITTEN BY THE PROJECT OWNER]"
+            jump dlg_reinecke_hub
+
+        "That's all for now.":
+            pass
+    return

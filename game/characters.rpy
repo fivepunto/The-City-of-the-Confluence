@@ -29,6 +29,11 @@ define guard  = Character("Gate Guard")    # the Veycross gate guard (a role)
 define imara  = Character("Imara")          # the Lamplighter Guild receptionist
 
 
+# --- Guild Hall NPCs (owner canon) ---
+define vekshara = Character("Vekshara")     # Guild Hall NPC
+define reinecke = Character("Reinecke")     # Guild Hall NPC
+
+
 # --- Placeholder city NPCs (owner to name; bracketed like the old inline ones) ---
 define townsperson = Character("[[Townsperson]")
 define merchant    = Character("[[Merchant]")
