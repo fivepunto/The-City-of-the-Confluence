@@ -122,6 +122,25 @@ define config.window_show_transition = Dissolve(.2)
 define config.window_hide_transition = Dissolve(.2)
 
 
+## Keep the dialogue box visible UNDER a choice menu (the prologue's reactive
+## `menu:` choices read as one continuous conversation, not floating buttons on
+## a bare screen -- and the `choice` screen in screens.rpy already positions the
+## options to "ride just above the dialogue box", which only works if the box is
+## still there).
+##
+## Why this is needed: with config.window = "auto", a caption-LESS `menu:` is
+## named just "menu", which is in config.window_auto_hide -> the box is hidden
+## (renpy/common/000window.rpy, renpy/ast.py:1783). Setting choice_empty_window
+## renames the statement to "menu-with-caption" (in window_auto_show instead),
+## so the box stays; and if no say line preceded the menu, `extend` re-shows the
+## last line rather than a blank box (the Ren'Py-documented intended value).
+##
+## Scope: this governs ONLY the `menu` statement / `choice` screen. It does NOT
+## touch `call screen skill_menu` (dialogue.rpy), which deliberately scrims the
+## textbox -- that is a separate, intentional surface.
+define config.choice_empty_window = extend
+
+
 ## Preference defaults #########################################################
 
 ## Controls the default text speed. The default, 0, is infinite, while any other
